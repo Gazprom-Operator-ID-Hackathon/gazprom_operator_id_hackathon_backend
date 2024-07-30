@@ -1,0 +1,1 @@
+# gazprom_operator_id_hackathon_backend
