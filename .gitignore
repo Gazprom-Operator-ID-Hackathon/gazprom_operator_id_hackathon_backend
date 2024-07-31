@@ -26,3 +26,6 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Исключить файл .env
+.env
