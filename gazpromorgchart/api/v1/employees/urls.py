@@ -1,20 +1,12 @@
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from api.v1.employees.views import (
-    EmploymentTypeViewSet, PositionViewSet, GradeViewSet, 
-    EmployeeViewSet, SkillViewSet, ProductViewSet, 
-    ProjectViewSet, ContactViewSet, EmailViewSet, PhoneViewSet
-)
+from .views import UsersViewSet, UserMeView, UserDetailView
 
 router = DefaultRouter()
-router.register(r'employment-types', EmploymentTypeViewSet)
-router.register(r'positions', PositionViewSet)
-router.register(r'grades', GradeViewSet)
-router.register(r'employees', EmployeeViewSet)
-router.register(r'skills', SkillViewSet)
-router.register(r'products', ProductViewSet)
-router.register(r'projects', ProjectViewSet)
-router.register(r'contacts', ContactViewSet)
-router.register(r'emails', EmailViewSet)
-router.register(r'phones', PhoneViewSet)
+router.register(r'users', UsersViewSet, basename='users')
 
-urlpatterns = router.urls
+urlpatterns = [
+    path('', include(router.urls)),
+    path('user/me/', UserMeView.as_view(), name='user-me'),
+    path('user/<int:id>/', UserDetailView.as_view(), name='user-detail'),
+]

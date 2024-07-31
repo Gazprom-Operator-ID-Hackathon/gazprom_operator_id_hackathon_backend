@@ -1,5 +1,6 @@
-import pytz
 from django.db import models
+from django.contrib.auth.models import User
+import pytz
 
 from .validators import (
     validate_links,
@@ -10,9 +11,9 @@ from .validators import (
 
 TIMEZONE_CHOICES = [(tz, tz) for tz in pytz.all_timezones]
 
-
 class Employee(models.Model):
     """Модель сотрудника"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     first_name = models.CharField("Имя", max_length=100)
     last_name = models.CharField("Фамилия", max_length=100)
     photo = models.ImageField(
@@ -29,7 +30,8 @@ class Employee(models.Model):
         "Иностранные языки", blank=True, null=True, validators=[validate_hashtags]
     )
     programs = models.JSONField(
-        "Программы", blank=False, null=False, validators=[validate_hashtags]
+        "Программы", blank=False, null=False, validators=[validate_hashtags],
+        default=list
     )
     skills = models.JSONField(
         "Навыки", blank=False, null=False, validators=[validate_hashtags]
