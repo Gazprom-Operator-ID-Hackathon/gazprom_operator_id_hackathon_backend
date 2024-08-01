@@ -6,7 +6,7 @@ class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для модели пользователя"""
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email']
+        fields = '__all__'
 
 class UsersSerializer(serializers.ModelSerializer):
     """Сериализатор для модели пользователя с полным набором полей"""
