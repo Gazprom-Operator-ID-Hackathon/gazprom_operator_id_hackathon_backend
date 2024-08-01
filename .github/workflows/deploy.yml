@@ -31,8 +31,8 @@ jobs:
       uses: appleboy/ssh-action@v0.1.3
       with:
         host: ${{ secrets.SERVER_IP }}
-        username: ${{ secrets.SERVER_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        username: root
+        password: ${{ secrets.SERVER_PASSWORD }}
         script: |
           cd ..
           cd home/gazprom/
