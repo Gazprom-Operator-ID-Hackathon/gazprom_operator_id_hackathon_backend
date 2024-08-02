@@ -11,12 +11,14 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UsersSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели пользователя с полным набором полей"""
-    user = UserSerializer()
-
     class Meta:
         model = Users
         fields = '__all__'
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation.pop('user', None)
+        return representation
 
 class UsersLimitedSerializer(serializers.ModelSerializer):
     """Сериализатор для модели пользователя с ограниченным набором полей"""
