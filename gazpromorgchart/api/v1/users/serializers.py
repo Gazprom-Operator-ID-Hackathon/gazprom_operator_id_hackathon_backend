@@ -17,6 +17,9 @@ class UsersSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        request = self.context.get('request')
+        if instance.photo and hasattr(instance.photo, 'url'):
+            representation['photo_url'] = request.build_absolute_uri(instance.photo.url)
         representation.pop('user', None)
         return representation
 
