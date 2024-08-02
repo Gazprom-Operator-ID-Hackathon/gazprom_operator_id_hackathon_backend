@@ -30,19 +30,17 @@ class Users(models.Model):
         "Иностранные языки", blank=True, null=True, validators=[validate_hashtags]
     )
     programs = models.JSONField(
-        "Программы", blank=False, null=False, validators=[validate_hashtags],
+        "Программы", blank=True, null=True, validators=[validate_hashtags],
         default=list
     )
     skills = models.JSONField(
-        "Навыки", blank=False, null=False, validators=[validate_hashtags]
+        "Навыки", blank=True, null=True, validators=[validate_hashtags]
     )
     products = models.JSONField("Продукты", blank=True, null=True)
     projects = models.JSONField("Проекты", blank=True, null=True)
     contacts = models.JSONField(
-        "Контакты", blank=True, null=True, 
-        validators=[validate_emails, validate_phone_numbers, validate_links]
+        "Контакты", blank=True, null=True
     )
-
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'

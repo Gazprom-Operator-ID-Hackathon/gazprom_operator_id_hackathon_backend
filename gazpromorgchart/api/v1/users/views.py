@@ -1,11 +1,12 @@
-from rest_framework import viewsets, generics, status
+from rest_framework import viewsets, generics, status, serializers
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
 from core.users.models import Users
-from .serializers import UsersSerializer, UsersLimitedSerializer, RegisterSerializer, LoginSerializer
+from .serializers import UsersSerializer, UsersLimitedSerializer, RegisterSerializer, UserSerializer
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для получения списка пользователей с ограниченным набором полей"""
@@ -13,14 +14,20 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UsersLimitedSerializer
     operation_description = "Получение списка пользователей для формирования диаграммы"
 
-class UserMeView(generics.RetrieveUpdateDestroyAPIView):
+class UserMeView(generics.RetrieveUpdateAPIView):
     """Вьюсет для получения и редактирования данных текущего пользователя"""
     serializer_class = UsersSerializer
     permission_classes = [IsAuthenticated]
-    operation_description = "Получение, обновление и удаление данных текущего пользователя"
+    authentication_classes = [TokenAuthentication]
+    operation_description = "Получение и обновление данных текущего пользователя"
 
     def get_object(self):
-        return self.request.user.users
+        user = self.request.user
+        try:
+            users_profile = Users.objects.get(user=user)
+        except Users.DoesNotExist:
+            raise serializers.ValidationError("Профиль пользователя не найден.")
+        return users_profile
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Вьюсет для получения данных другого пользователя по ID и выполнения CRUD операций"""

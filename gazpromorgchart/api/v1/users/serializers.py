@@ -2,7 +2,6 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-
 from core.users.models import Users
 
 class UserSerializer(serializers.ModelSerializer):
@@ -13,6 +12,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UsersSerializer(serializers.ModelSerializer):
     """Сериализатор для модели пользователя с полным набором полей"""
+    user = UserSerializer()
+
     class Meta:
         model = Users
         fields = '__all__'
@@ -22,7 +23,7 @@ class UsersLimitedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
         fields = ['first_name', 'last_name', 'position']
-        
+
 class RegisterSerializer(serializers.ModelSerializer):
     """Cериализатор для регистрации нового пользователя"""
     email = serializers.EmailField(
