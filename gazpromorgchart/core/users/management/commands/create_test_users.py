@@ -8,7 +8,20 @@ from core.users.models import Users, TIMEZONE_CHOICES
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'gazpromorgchart.settings')
 django.setup()
 
-fake = Faker()
+fake = Faker('ru_RU')  # Используем русскую локализацию
+
+IT_POSITIONS = [
+    'Программист',
+    'Системный администратор',
+    'Аналитик данных',
+    'Разработчик ПО',
+    'Тестировщик',
+    'Менеджер проектов',
+    'Сетевой инженер',
+    'Специалист по информационной безопасности',
+    'Веб-разработчик',
+    'Инженер DevOps'
+]
 
 class Command(BaseCommand):
     help = 'Создание тестовых пользователей'
@@ -43,7 +56,7 @@ class Command(BaseCommand):
             first_name=first_name,
             last_name=last_name,
             photo=None,
-            position=fake.job(),
+            position=fake.random_element(elements=IT_POSITIONS),  # Используем IT должности
             grade=fake.random_element(elements=('A', 'B', 'C', 'D')),
             employment_type=fake.random_element(elements=('Full-time', 'Part-time', 'Contract')),
             timezone=fake.random_element(elements=[tz for tz, _ in TIMEZONE_CHOICES]),

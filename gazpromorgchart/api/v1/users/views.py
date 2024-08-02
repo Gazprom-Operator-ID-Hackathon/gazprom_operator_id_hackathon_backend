@@ -1,10 +1,12 @@
 from rest_framework import viewsets, generics, status, serializers
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
+from django.shortcuts import redirect, get_object_or_404
 from core.users.models import Users
 from .serializers import UsersSerializer, UsersLimitedSerializer, RegisterSerializer, UserSerializer
 
@@ -14,20 +16,14 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UsersLimitedSerializer
     operation_description = "Получение списка пользователей для формирования диаграммы"
 
-class UserMeView(generics.RetrieveUpdateAPIView):
-    """Вьюсет для получения и редактирования данных текущего пользователя"""
-    serializer_class = UsersSerializer
+class UserMeView(APIView):
+    """Вьюсет для перенаправления на профиль текущего пользователя"""
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
-    operation_description = "Получение и обновление данных текущего пользователя"
 
-    def get_object(self):
-        user = self.request.user
-        try:
-            users_profile = Users.objects.get(user=user)
-        except Users.DoesNotExist:
-            raise serializers.ValidationError("Профиль пользователя не найден.")
-        return users_profile
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        return redirect('user-detail', pk=user.pk)
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Вьюсет для получения данных другого пользователя по ID и выполнения CRUD операций"""

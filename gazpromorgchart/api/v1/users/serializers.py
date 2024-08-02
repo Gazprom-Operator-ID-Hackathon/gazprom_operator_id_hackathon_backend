@@ -59,9 +59,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data['password'])
         user.save()
-        return user
 
-class LoginSerializer(serializers.Serializer):
-    """Сериализатор для аутентификации пользователя"""
-    username = serializers.CharField(required=True)
-    password = serializers.CharField(required=True, write_only=True)
+        # Создание профиля пользователя
+        Users.objects.create(user=user)
+
+        return user
