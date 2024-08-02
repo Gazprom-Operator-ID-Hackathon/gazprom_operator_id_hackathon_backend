@@ -17,13 +17,9 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
     operation_description = "Получение списка пользователей для формирования диаграммы"
 
 class UserMeView(APIView):
-    """Вьюсет для перенаправления на профиль текущего пользователя"""
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-
+    """Вьюсет для перенаправления на профиль первого пользователя"""
     def get(self, request, *args, **kwargs):
-        user = request.user
-        return redirect('user-detail', pk=user.pk)
+        return redirect('user-detail', pk=1)
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Вьюсет для получения данных другого пользователя по ID и выполнения CRUD операций"""

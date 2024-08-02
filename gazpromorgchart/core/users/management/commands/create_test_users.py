@@ -56,7 +56,7 @@ class Command(BaseCommand):
             first_name=first_name,
             last_name=last_name,
             photo=None,
-            position=fake.random_element(elements=IT_POSITIONS),  # Используем IT должности
+            position=fake.random_element(elements=IT_POSITIONS),
             grade=fake.random_element(elements=('A', 'B', 'C', 'D')),
             employment_type=fake.random_element(elements=('Full-time', 'Part-time', 'Contract')),
             timezone=fake.random_element(elements=[tz for tz, _ in TIMEZONE_CHOICES]),
@@ -76,4 +76,4 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Пользователь {username} создан'))
 
 if __name__ == '__main__':
-    Command().handle(total=10)
+    Command().handle(total=500)
