@@ -76,4 +76,4 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Пользователь {username} создан'))
 
 if __name__ == '__main__':
-    Command().handle(total=500)
+    Command().handle(total=42)
