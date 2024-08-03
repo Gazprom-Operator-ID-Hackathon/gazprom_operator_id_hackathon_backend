@@ -1,71 +1,51 @@
-from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
+from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.auth.password_validation import validate_password
-from core.users.models import Users
+import pytz
 
-class UserSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели пользователя"""
-    class Meta:
-        model = User
-        fields = '__all__'
+from .validators import (
+    validate_links,
+    validate_phone_numbers,
+    validate_emails,
+    validate_hashtags
+)
 
-class UsersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Users
-        fields = '__all__'
+TIMEZONE_CHOICES = [(tz, tz) for tz in pytz.all_timezones]
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        request = self.context.get('request')
-        if instance.photo and hasattr(instance.photo, 'url'):
-            representation['photo_url'] = request.build_absolute_uri(instance.photo.url)
-        representation.pop('user', None)
-        return representation
-
-class UsersLimitedSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели пользователя с ограниченным набором полей"""
-    class Meta:
-        model = Users
-        fields = ['first_name', 'last_name', 'position']
-
-class RegisterSerializer(serializers.ModelSerializer):
-    """Cериализатор для регистрации нового пользователя"""
-    email = serializers.EmailField(
-        required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
+class Users(models.Model):
+    """Модель пользователя"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    first_name = models.CharField("Имя", max_length=100)
+    last_name = models.CharField("Фамилия", max_length=100)
+    photo = models.ImageField(
+        "Фото пользователя", upload_to='photos/', blank=True, null=True
     )
-    password = serializers.CharField(
-        write_only=True,
-        required=True,
-        validators=[validate_password]
+    position = models.CharField("Должность пользователя", max_length=100)
+    grade = models.CharField("Грейд", max_length=50)
+    employment_type = models.CharField("Тип занятости", max_length=100)
+    timezone = models.CharField(
+        "Часовой пояс пользователя", max_length=32, choices=TIMEZONE_CHOICES, 
+        default='UTC'
     )
-    password2 = serializers.CharField(write_only=True, required=True)
+    foreign_languages = models.JSONField(
+        "Иностранные языки", blank=True, null=True, validators=[validate_hashtags]
+    )
+    programs = models.JSONField(
+        "Программы", blank=True, null=True, validators=[validate_hashtags],
+        default=list
+    )
+    skills = models.JSONField(
+        "Навыки", blank=True, null=True, validators=[validate_hashtags]
+    )
+    products = models.JSONField("Продукты", blank=True, null=True)
+    projects = models.JSONField("Проекты", blank=True, null=True)
+    contacts = models.JSONField(
+        "Контакты", blank=True, null=True
+    )
 
     class Meta:
-        model = User
-        fields = ('username', 'password', 'password2', 'email', 'first_name', 'last_name')
-        extra_kwargs = {
-            'first_name': {'required': True},
-            'last_name': {'required': True}
-        }
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+        app_label = 'users'
 
-    def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"password": "Пароли не совпадают."})
-        return attrs
-
-    def create(self, validated_data):
-        user = User.objects.create(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name']
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-
-        # Создание профиля пользователя
-        Users.objects.create(user=user)
-
-        return user
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"

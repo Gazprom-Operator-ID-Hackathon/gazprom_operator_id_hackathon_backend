@@ -32,9 +32,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "core.users",
-    "core.profiles",
-    "core.teams",
-    "core.diagrams",
 ]
 
 MIDDLEWARE = [

@@ -6,13 +6,13 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
-from django.shortcuts import redirect, get_object_or_404
-from core.users.models import Users
-from .serializers import UsersSerializer, UsersLimitedSerializer, RegisterSerializer, UserSerializer
+from django.shortcuts import redirect
+from core.users.models import User
+from .serializers import UsersSerializer, UsersLimitedSerializer, RegisterSerializer
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для получения списка пользователей с ограниченным набором полей"""
-    queryset = Users.objects.all()
+    queryset = User.objects.all()
     serializer_class = UsersLimitedSerializer
     operation_description = "Получение списка пользователей для формирования диаграммы"
 
@@ -23,7 +23,7 @@ class UserMeView(APIView):
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Вьюсет для получения данных другого пользователя по ID и выполнения CRUD операций"""
-    queryset = Users.objects.all()
+    queryset = User.objects.all()
     serializer_class = UsersSerializer
     lookup_field = 'pk'
     operation_description = "Получение, создание, обновление и удаление данных пользователя по ID"
