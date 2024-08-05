@@ -27,39 +27,28 @@ class Team(models.Model):
     name = models.CharField("Название команды", max_length=100)
     team_type = models.CharField("Тип команды", max_length=10, choices=TEAM_TYPE_CHOICES)
     it_component = models.ForeignKey(ITComponent, on_delete=models.CASCADE, related_name='teams')
+    employees = models.ManyToManyField(User, related_name='teams', blank=True)
 
     def __str__(self):
         return self.name
 
 class Position(models.Model):
     """Класс для модели должности"""
-    name = models.CharField("Должность пользователя", max_length=100)
+    name = models.CharField("Должность пользователя", max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.name
 
 class Grade(models.Model):
     """Класс для модели грейда"""
-    name = models.CharField("Грейд", max_length=50)
+    name = models.CharField("Грейд", max_length=50, blank=True, null=True)
 
     def __str__(self):
         return self.name
 
 class EmploymentType(models.Model):
     """Класс для модели типа занятости"""
-    FULL_TIME = 'FULL_TIME'
-    PART_TIME = 'PART_TIME'
-    CONTRACT = 'CONTRACT'
-    INTERNSHIP = 'INTERNSHIP'
-
-    EMPLOYMENT_TYPE_CHOICES = [
-        (FULL_TIME, 'Полная занятость'),
-        (PART_TIME, 'Частичная занятость'),
-        (CONTRACT, 'Контракт'),
-        (INTERNSHIP, 'Стажировка'),
-    ]
-
-    name = models.CharField("Тип занятости", max_length=100, choices=EMPLOYMENT_TYPE_CHOICES, default=FULL_TIME)
+    name = models.CharField("Тип занятости", max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.name
