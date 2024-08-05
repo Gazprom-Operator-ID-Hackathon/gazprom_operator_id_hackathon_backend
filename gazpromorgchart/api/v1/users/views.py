@@ -2,17 +2,12 @@ from rest_framework import viewsets, generics, status, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authentication import TokenAuthentication
-from django.contrib.auth.models import User
-from django.shortcuts import redirect
 from core.users.models import (
-    User, Contact, ITComponent, Team, Position, Grade, EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills
+    User, Contact, ITComponent, Team, Position, Grade, EmployeeGrade, EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills
 )
 from .serializers import (
     UserSerializer, UserListSerializer, UserDetailSerializer, ITComponentSerializer, TeamSerializer, PositionSerializer, 
-    GradeSerializer, EmploymentTypeSerializer, ForeignLanguageSerializer, ProgrammingLanguagesSerializer, ProgrammingSkillsSerializer, ContactSerializer
+    GradeSerializer, EmployeeGradeSerializer, EmploymentTypeSerializer, ForeignLanguageSerializer, ProgrammingLanguagesSerializer, ProgrammingSkillsSerializer, ContactSerializer
 )
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
@@ -55,6 +50,10 @@ class PositionViewSet(viewsets.ModelViewSet):
 class GradeViewSet(viewsets.ModelViewSet):
     queryset = Grade.objects.all()
     serializer_class = GradeSerializer
+
+class EmployeeGradeViewSet(viewsets.ModelViewSet):
+    queryset = EmployeeGrade.objects.all()
+    serializer_class = EmployeeGradeSerializer
 
 class EmploymentTypeViewSet(viewsets.ModelViewSet):
     queryset = EmploymentType.objects.all()

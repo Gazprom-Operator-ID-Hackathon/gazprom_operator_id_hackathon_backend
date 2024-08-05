@@ -60,8 +60,6 @@ class Grade(models.Model):
         (4, 'Работник'),
     ]
     id = models.PositiveSmallIntegerField(choices=GRADE_CHOICES, primary_key=True)
-    name = models.CharField("Грейд", max_length=50, blank=True, null=True)
-    level = models.PositiveSmallIntegerField("Уровень иерархии", unique=True)
 
     class Meta:
         verbose_name = 'Грейд'
@@ -77,26 +75,33 @@ class EmployeeGrade(models.Model):
         ('Middle', 'Middle'),
         ('Senior', 'Senior'),
     ]
-    id = models.PositiveSmallIntegerField(choices=GRADE_CHOICES, primary_key=True)
-    name = models.CharField("Грейд сотрудника", max_length=50, blank=True, null=True)
+    id = models.CharField(max_length=10, choices=GRADE_CHOICES, primary_key=True)
 
     class Meta:
-        verbose_name = 'Грейд сотрудника'
-        verbose_name_plural = 'Грейды сотрудников'
+        verbose_name = "Грейд сотрудника"
+        verbose_name_plural = "Грейды сотрудников"
 
     def __str__(self):
-        return self.get_id_display()
+        return self.id
 
 class EmploymentType(models.Model):
     """Класс для модели типа занятости"""
-    name = models.CharField("Тип занятости", max_length=100, blank=True, null=True)
+    EMPLOYMENT_TYPE_CHOICES = [
+        ('FULL_TIME', 'Полная занятость'),
+        ('PART_TIME', 'Частичная занятость'),
+        ('CONTRACT', 'Контракт'),
+        ('TEMPORARY', 'Временная занятость'),
+        ('INTERN', 'Стажировка'),
+        ('FREELANCE', 'Фриланс'),
+    ]
+    employment_type = models.CharField("Тип занятости", max_length=20, choices=EMPLOYMENT_TYPE_CHOICES)
 
     class Meta:
         verbose_name = 'Тип занятости'
         verbose_name_plural = 'Типы занятости'
 
     def __str__(self):
-        return self.name
+        return self.get_employment_type_display()
 
 class ForeignLanguage(models.Model):
     """Класс для модели иностранных языков"""
@@ -124,7 +129,7 @@ class ProgrammingLanguages(models.Model):
     def __str__(self):
         return self.programminglanguages
 
-class ProgrammingSkills(models.Model):  
+class ProgrammingSkills(models.Model):
     """Класс для модели навыков программирования"""
     programmingskills = models.CharField(
         "Навыки программирования", max_length=255, blank=True, null=True
@@ -152,6 +157,9 @@ class Contact(models.Model):
         verbose_name = 'Контакт'
         verbose_name_plural = 'Контакты'
 
+    def __str__(self):
+        return f'{self.user} - {self.email1}'
+
 class User(models.Model):
     """Модель пользователя"""
     id = models.AutoField(primary_key=True)
@@ -161,8 +169,8 @@ class User(models.Model):
         "Фото пользователя", upload_to='user_photos/', blank=True, null=True
     )
     position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Должность')
-    grade = models.ForeignKey(Grade, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Грейд в структуре компании')
-    employee_grade = models.ForeignKey(EmployeeGrade, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Грейд сотрудника')
+    level = models.ForeignKey(Grade, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Грейд в структуре компании')
+    grade = models.ForeignKey(EmployeeGrade, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Грейд сотрудника')
     boss = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='subordinates', verbose_name='Прямой руководитель')
     team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='members', verbose_name='Команда')
     it_component = models.ForeignKey(ITComponent, on_delete=models.SET_NULL, null=True, blank=True, related_name='users')
@@ -173,11 +181,11 @@ class User(models.Model):
     foreign_languages = models.ManyToManyField(ForeignLanguage, blank=True, verbose_name='Иностранные языки')
     programming_languages = models.ManyToManyField(ProgrammingLanguages, blank=True, verbose_name='Языки программирования')
     programming_skills = models.ManyToManyField(ProgrammingSkills, blank=True, verbose_name='Навыки программирования')
-    contacts = models.ManyToManyField(Contact, related_name='contacts', blank=True, verbose_name='Контакты')
-
+    contacts = models.ManyToManyField(Contact, blank=True, verbose_name='Контакты', related_name='user_contacts')
+    
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f'{self.first_name} {self.last_name}'
