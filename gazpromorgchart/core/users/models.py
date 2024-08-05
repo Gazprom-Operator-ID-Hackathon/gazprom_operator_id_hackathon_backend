@@ -14,6 +14,10 @@ class ITComponent(models.Model):
     description = models.TextField("Описание компонента", blank=True, null=True)
     status = models.CharField("Статус", max_length=10, choices=STATUS_CHOICES, default='ACTIVE')
 
+    class Meta:
+        verbose_name = 'IT компонент'
+        verbose_name_plural = 'IT компоненты'
+
     def __str__(self):
         return self.name
 
@@ -29,12 +33,20 @@ class Team(models.Model):
     it_component = models.ForeignKey(ITComponent, on_delete=models.CASCADE, related_name='teams')
     employees = models.ManyToManyField(User, related_name='teams', blank=True)
 
+    class Meta:
+        verbose_name = 'Команда'
+        verbose_name_plural = 'Команды'
+
     def __str__(self):
         return self.name
 
 class Position(models.Model):
     """Класс для модели должности"""
     name = models.CharField("Должность пользователя", max_length=100, blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Должность'
+        verbose_name_plural = 'Должности'
 
     def __str__(self):
         return self.name
@@ -51,6 +63,10 @@ class Grade(models.Model):
     name = models.CharField("Грейд", max_length=50, blank=True, null=True)
     level = models.PositiveSmallIntegerField("Уровень иерархии", unique=True)
 
+    class Meta:
+        verbose_name = 'Грейд'
+        verbose_name_plural = 'Грейды'
+
     def __str__(self):
         return self.get_id_display()
 
@@ -64,12 +80,20 @@ class EmployeeGrade(models.Model):
     id = models.PositiveSmallIntegerField(choices=GRADE_CHOICES, primary_key=True)
     name = models.CharField("Грейд сотрудника", max_length=50, blank=True, null=True)
 
+    class Meta:
+        verbose_name = 'Грейд сотрудника'
+        verbose_name_plural = 'Грейды сотрудников'
+
     def __str__(self):
         return self.get_id_display()
 
 class EmploymentType(models.Model):
     """Класс для модели типа занятости"""
     name = models.CharField("Тип занятости", max_length=100, blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Тип занятости'
+        verbose_name_plural = 'Типы занятости'
 
     def __str__(self):
         return self.name
@@ -80,6 +104,10 @@ class ForeignLanguage(models.Model):
         "Иностранные языки", max_length=255, blank=True, null=True
     )
 
+    class Meta:
+        verbose_name = 'Иностранный язык'
+        verbose_name_plural = 'Иностранные языки'
+
     def __str__(self):
         return self.foreignlanguages
 
@@ -89,6 +117,10 @@ class ProgrammingLanguages(models.Model):
         "Языки программирования", max_length=255, blank=True, null=True
     )
 
+    class Meta:
+        verbose_name = 'Язык программирования'
+        verbose_name_plural = 'Языки программирования'
+
     def __str__(self):
         return self.programminglanguages
 
@@ -97,6 +129,10 @@ class ProgrammingSkills(models.Model):
     programmingskills = models.CharField(
         "Навыки программирования", max_length=255, blank=True, null=True
     )
+
+    class Meta:
+        verbose_name = 'Навык программирования'
+        verbose_name_plural = 'Навыки программирования'
 
     def __str__(self):
         return self.programmingskills
@@ -112,6 +148,10 @@ class Contact(models.Model):
     social_link2 = models.URLField("Социальная ссылка 2", blank=True, null=True)
     social_link3 = models.URLField("Социальная ссылка 3", blank=True, null=True)
 
+    class Meta:
+        verbose_name = 'Контакт'
+        verbose_name_plural = 'Контакты'
+
 class User(models.Model):
     """Модель пользователя"""
     id = models.AutoField(primary_key=True)
@@ -123,7 +163,7 @@ class User(models.Model):
     position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Должность')
     grade = models.ForeignKey(Grade, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Грейд в структуре компании')
     employee_grade = models.ForeignKey(EmployeeGrade, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Грейд сотрудника')
-    boss = models.ForeignKey('Прямой руководитель работника', on_delete=models.SET_NULL, null=True, blank=True, related_name='subordinates')
+    boss = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='subordinates', verbose_name='Прямой руководитель')
     team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='members', verbose_name='Команда')
     it_component = models.ForeignKey(ITComponent, on_delete=models.SET_NULL, null=True, blank=True, related_name='users')
     employment_type = models.ForeignKey(EmploymentType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Тип занятости')
@@ -134,6 +174,10 @@ class User(models.Model):
     programming_languages = models.ManyToManyField(ProgrammingLanguages, blank=True, verbose_name='Языки программирования')
     programming_skills = models.ManyToManyField(ProgrammingSkills, blank=True, verbose_name='Навыки программирования')
     contacts = models.ManyToManyField(Contact, related_name='contacts', blank=True, verbose_name='Контакты')
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
