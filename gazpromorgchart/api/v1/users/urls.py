@@ -5,9 +5,9 @@ from .views import UsersViewSet, UserMeView, UserDetailView, ProjectsViewSet
 router = DefaultRouter()
 
 urlpatterns = [
-    path('api/v1/', include(router.urls)),
-    path('api/v1/users/', UsersViewSet.as_view({'get': 'list'}), name='users-list'),
-    path('api/v1/users/me', UserMeView.as_view(), name='user-me'),
-    path('api/v1/users/<int:pk>', UserDetailView.as_view(), name='user-detail'),
-    path('api/v1/projects/', ProjectsViewSet.as_view({'get': 'list'}), name='projects-list'),
+    path('', include(router.urls)),
+    path('users/', UsersViewSet.as_view({'get': 'list'}), name='users-list'),
+    path('users/me', UserMeView.as_view(), name='user-me'),
+    path('users/<int:pk>', UserDetailView.as_view(), name='user-detail'),
+    path('projects/', ProjectsViewSet.as_view({'get': 'list'}), name='projects-list'),
 ]
