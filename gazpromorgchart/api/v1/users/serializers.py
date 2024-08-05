@@ -11,20 +11,6 @@ class UserListSerializer(serializers.ModelSerializer):
         model = User
         fields = ['first_name', 'last_name', 'position']
 
-class UserDetailSerializer(serializers.ModelSerializer):
-    position = serializers.StringRelatedField()
-    grade = serializers.StringRelatedField()
-    employment_type = serializers.StringRelatedField()
-    foreign_languages = serializers.StringRelatedField(many=True)
-    programming_languages = serializers.StringRelatedField(many=True)
-    programming_skills = serializers.StringRelatedField(many=True)
-    contacts = serializers.StringRelatedField(many=True)
-    it_component = serializers.StringRelatedField()
-
-    class Meta:
-        model = User
-        fields = '__all__'
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -79,6 +65,34 @@ class ProgrammingSkillsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ContactSerializer(serializers.ModelSerializer):
+    links = serializers.SerializerMethodField()
+    emails = serializers.SerializerMethodField()
+    phones = serializers.SerializerMethodField()
+
     class Meta:
         model = Contact
+        fields = ['links', 'emails', 'phones']
+
+    def get_links(self, obj):
+        return [obj.social_link1, obj.social_link2, obj.social_link3]
+
+    def get_emails(self, obj):
+        return [obj.email1, obj.email2]
+
+    def get_phones(self, obj):
+        return [obj.phone1, obj.phone2]
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    position = serializers.StringRelatedField()
+    grade = serializers.StringRelatedField()
+    employment_type = serializers.StringRelatedField()
+    foreign_languages = serializers.StringRelatedField(many=True)
+    programming_languages = serializers.StringRelatedField(many=True)
+    programming_skills = serializers.StringRelatedField(many=True)
+    contacts = ContactSerializer(many=True, read_only=True)
+    it_component = serializers.StringRelatedField()
+
+    class Meta:
+        model = User
         fields = '__all__'

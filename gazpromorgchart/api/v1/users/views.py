@@ -8,7 +8,7 @@ from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from core.users.models import (
-    User, ITComponent, Team, Position, Grade, EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills, Contact
+    User, ITComponent, Team, Position, Grade, EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills
 )
 from .serializers import (
     UserSerializer, UserListSerializer, UserDetailSerializer, ITComponentSerializer, TeamSerializer, PositionSerializer, 
@@ -19,19 +19,26 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для получения списка пользователей с ограниченным набором полей"""
     queryset = User.objects.all()
     serializer_class = UserListSerializer
-    operation_description = "Получение списка пользователей для формирования диаграммы"
 
 class UserMeView(APIView):
-    """Вьюсет для перенаправления на профиль первого пользователя"""
+    """Вьюсет для получения данных текущего пользователя"""
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, *args, **kwargs):
-        return redirect('user-detail', pk=1)
+        user = request.user
+        serializer = UserDetailSerializer(user)
+        return Response(serializer.data)
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Вьюсет для получения данных другого пользователя по ID и выполнения CRUD операций"""
     queryset = User.objects.all()
     serializer_class = UserDetailSerializer
     lookup_field = 'pk'
-    operation_description = "Получение, создание, обновление и удаление данных пользователя по ID"
+
+class ProjectsViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для получения списка проектов"""
+    queryset = ITComponent.objects.all()
+    serializer_class = ITComponentSerializer
 
 class ITComponentViewSet(viewsets.ModelViewSet):
     queryset = ITComponent.objects.all()
@@ -65,6 +72,12 @@ class ProgrammingSkillsViewSet(viewsets.ModelViewSet):
     queryset = ProgrammingSkills.objects.all()
     serializer_class = ProgrammingSkillsSerializer
 
-class ContactViewSet(viewsets.ModelViewSet):
-    queryset = Contact.objects.all()
+class UserContactsView(generics.ListAPIView):
+    """Вьюсет для получения контактов пользователя по его ID"""
     serializer_class = ContactSerializer
+
+    def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Contact.objects.none()
+        user_id = self.kwargs['pk']
+        return Contact.objects.filter(user=user_id)
