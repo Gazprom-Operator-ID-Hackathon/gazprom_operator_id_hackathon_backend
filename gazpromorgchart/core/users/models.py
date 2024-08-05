@@ -3,9 +3,6 @@ from django.contrib.auth.models import User
 import pytz
 
 from .validators import (
-    validate_links,
-    validate_phone_numbers,
-    validate_emails,
     validate_hashtags
 )
 
@@ -86,36 +83,36 @@ class EmploymentType(models.Model):
 class ForeignLanguage(models.Model):
     """Класс для модели иностранных языков"""
     foreignlanguages = models.CharField(
-        "Иностранные языки", blank=True, null=True, validators=[validate_hashtags]
+        "Иностранные языки", max_length=255, blank=True, null=True, validators=[validate_hashtags]
     )
 
     def __str__(self):
-        return str(self.languages)
+        return str(self.foreignlanguages)
 
 class ProgrammingLanguages(models.Model):
     """Класс для модели языков программирования"""
     programminglanguages = models.CharField(
-        "Языки программирования", blank=True, null=True, validators=[validate_hashtags]
+        "Языки программирования", max_length=255, blank=True, null=True, validators=[validate_hashtags]
     )
 
     def __str__(self):
-        return str(self.languages)
+        return str(self.programminglanguages)
 
 class ProgrammingSkills(models.Model):  
     """Класс для модели навыков программирования"""
     programmingskills = models.CharField(
-        "Навыки программирования", blank=True, null=True, validators=[validate_hashtags]
+        "Навыки программирования", max_length=255, blank=True, null=True, validators=[validate_hashtags]
     )
 
     def __str__(self):
-        return str(self.skills)
+        return str(self.programmingskills)
 
 class Contact(models.Model):
     """Класс для модели контактов"""
     email1 = models.EmailField("Электронная почта 1", blank=True, null=True)
     email2 = models.EmailField("Электронная почта 2", blank=True, null=True)
-    phone1 = models.CharField("Телефон 1", max_length=20, blank=True, null=True)
-    phone2 = models.CharField("Телефон 2", max_length=20, blank=True, null=True)
+    phone1 = models.CharField("Телефон 1", max_length=50, blank=True, null=True)
+    phone2 = models.CharField("Телефон 2", max_length=50, blank=True, null=True)
     social_link1 = models.URLField("Ссылка на соцсеть 1", blank=True, null=True)
     social_link2 = models.URLField("Ссылка на соцсеть 2", blank=True, null=True)
     social_link3 = models.URLField("Ссылка на соцсеть 3", blank=True, null=True)
@@ -141,9 +138,9 @@ class User(models.Model):
         "Часовой пояс пользователя", max_length=32, choices=TIMEZONE_CHOICES, 
         default='UTC'
     )
-    foreign_languages = models.ForeignKey(ForeignLanguage, on_delete=models.SET_NULL, null=True, blank=True)
-    programming_languages = models.CharField(ProgrammingLanguages, on_delete=models.SET_NULL, null=True, blank=True)
-    programming_skills = models.CharField(ProgrammingSkills, on_delete=models.SET_NULL, null=True, blank=True)
+    foreign_languages = models.ManyToManyField(ForeignLanguage, blank=True)
+    programming_languages = models.ForeignKey(ProgrammingLanguages, on_delete=models.SET_NULL, null=True, blank=True)
+    programming_skills = models.ForeignKey(ProgrammingSkills, on_delete=models.SET_NULL, null=True, blank=True)
     contacts = models.ForeignKey(Contact, on_delete=models.SET_NULL, null=True, blank=True)
     it_component = models.ForeignKey(ITComponent, on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -157,8 +154,6 @@ class User(models.Model):
 
     def active_products(self):
         """Возвращает активные продукты пользователя"""
-        return ITComponent.objects.filter(status='ACTIVE', teams__department__users=self)
 
     def completed_products(self):
         """Возвращает завершенные продукты пользователя"""
-        return ITComponent.objects.filter(status='COMPLETED', teams__department__users=self)

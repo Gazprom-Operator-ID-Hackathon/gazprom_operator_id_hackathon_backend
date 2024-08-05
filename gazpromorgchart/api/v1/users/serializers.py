@@ -1,51 +1,84 @@
-from django.db import models
-from django.contrib.auth.models import User
-import pytz
+from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer, UserSerializer as BaseUserSerializer
+from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
+from core.users.models import User, ITComponent, Team, Position, Grade, EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills, Contact
+from django.contrib.auth import authenticate
 
-from .validators import (
-    validate_links,
-    validate_phone_numbers,
-    validate_emails,
-    validate_hashtags
-)
-
-TIMEZONE_CHOICES = [(tz, tz) for tz in pytz.all_timezones]
-
-class Users(models.Model):
-    """Модель пользователя"""
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    first_name = models.CharField("Имя", max_length=100)
-    last_name = models.CharField("Фамилия", max_length=100)
-    photo = models.ImageField(
-        "Фото пользователя", upload_to='photos/', blank=True, null=True
-    )
-    position = models.CharField("Должность пользователя", max_length=100)
-    grade = models.CharField("Грейд", max_length=50)
-    employment_type = models.CharField("Тип занятости", max_length=100)
-    timezone = models.CharField(
-        "Часовой пояс пользователя", max_length=32, choices=TIMEZONE_CHOICES, 
-        default='UTC'
-    )
-    foreign_languages = models.JSONField(
-        "Иностранные языки", blank=True, null=True, validators=[validate_hashtags]
-    )
-    programs = models.JSONField(
-        "Программы", blank=True, null=True, validators=[validate_hashtags],
-        default=list
-    )
-    skills = models.JSONField(
-        "Навыки", blank=True, null=True, validators=[validate_hashtags]
-    )
-    products = models.JSONField("Продукты", blank=True, null=True)
-    projects = models.JSONField("Проекты", blank=True, null=True)
-    contacts = models.JSONField(
-        "Контакты", blank=True, null=True
-    )
+class UserListSerializer(serializers.ModelSerializer):
+    position = serializers.StringRelatedField()
 
     class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-        app_label = 'users'
+        model = User
+        fields = ['first_name', 'last_name', 'position']
 
-    def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+class UserDetailSerializer(serializers.ModelSerializer):
+    position = serializers.StringRelatedField()
+    grade = serializers.StringRelatedField()
+    employment_type = serializers.StringRelatedField()
+    foreign_languages = serializers.StringRelatedField(many=True)
+    programming_languages = serializers.StringRelatedField(many=True)
+    programming_skills = serializers.StringRelatedField(many=True)
+    contacts = serializers.StringRelatedField(many=True)
+    it_component = serializers.StringRelatedField()
+
+    class Meta:
+        model = User
+        fields = '__all__'
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email')
+
+class ITComponentSerializer(serializers.ModelSerializer):
+    teams = serializers.StringRelatedField(many=True)
+
+    class Meta:
+        model = ITComponent
+        fields = '__all__'
+
+class TeamSerializer(serializers.ModelSerializer):
+    users = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Team
+        fields = '__all__'
+
+    def get_users(self, obj):
+        users = obj.users.all()
+        return UserListSerializer(users, many=True).data
+
+class PositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Position
+        fields = '__all__'
+
+class GradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grade
+        fields = '__all__'
+
+class EmploymentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmploymentType
+        fields = '__all__'
+
+class ForeignLanguageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ForeignLanguage
+        fields = '__all__'
+
+class ProgrammingLanguagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProgrammingLanguages
+        fields = '__all__'
+
+class ProgrammingSkillsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProgrammingSkills
+        fields = '__all__'
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = '__all__'
