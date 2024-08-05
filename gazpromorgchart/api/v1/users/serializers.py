@@ -82,7 +82,6 @@ class ContactSerializer(serializers.ModelSerializer):
     def get_phones(self, obj):
         return [obj.phone1, obj.phone2]
 
-
 class UserDetailSerializer(serializers.ModelSerializer):
     position = serializers.StringRelatedField()
     grade = serializers.StringRelatedField()
@@ -91,8 +90,14 @@ class UserDetailSerializer(serializers.ModelSerializer):
     programming_languages = serializers.StringRelatedField(many=True)
     programming_skills = serializers.StringRelatedField(many=True)
     contacts = ContactSerializer(many=True, read_only=True)
-    it_component = serializers.StringRelatedField()
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['id', 'first_name', 'last_name', 'timezone', 'photo', 'position', 'grade', 'employment_type', 'foreign_languages', 'programming_languages', 'programming_skills', 'contacts']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['foreign_languages'] = representation.get('foreign_languages', [])
+        representation['programming_languages'] = representation.get('programming_languages', [])
+        representation['programming_skills'] = representation.get('programming_skills', [])
+        return representation
