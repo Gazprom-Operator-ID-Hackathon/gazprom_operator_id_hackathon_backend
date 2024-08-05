@@ -41,10 +41,31 @@ class Position(models.Model):
 
 class Grade(models.Model):
     """Класс для модели грейда"""
+    GRADE_CHOICES = [
+        (1, 'Руководитель проектов'),
+        (2, 'Руководитель департамента'),
+        (3, 'Руководитель группы'),
+        (4, 'Работник'),
+    ]
+    id = models.PositiveSmallIntegerField(choices=GRADE_CHOICES, primary_key=True)
     name = models.CharField("Грейд", max_length=50, blank=True, null=True)
+    level = models.PositiveSmallIntegerField("Уровень иерархии", unique=True)
 
     def __str__(self):
-        return self.name
+        return self.get_id_display()
+
+class EmployeeGrade(models.Model):
+    """Класс для модели грейда сотрудника"""
+    GRADE_CHOICES = [
+        ('Junior', 'Junior'),
+        ('Middle', 'Middle'),
+        ('Senior', 'Senior'),
+    ]
+    id = models.PositiveSmallIntegerField(choices=GRADE_CHOICES, primary_key=True)
+    name = models.CharField("Грейд сотрудника", max_length=50, blank=True, null=True)
+
+    def __str__(self):
+        return self.get_id_display()
 
 class EmploymentType(models.Model):
     """Класс для модели типа занятости"""
@@ -99,16 +120,20 @@ class User(models.Model):
     photo = models.ImageField(
         "Фото пользователя", upload_to='user_photos/', blank=True, null=True
     )
-    position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True, blank=True)
-    grade = models.ForeignKey(Grade, on_delete=models.SET_NULL, null=True, blank=True)
-    employment_type = models.ForeignKey(EmploymentType, on_delete=models.SET_NULL, null=True, blank=True)
+    position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Должность')
+    grade = models.ForeignKey(Grade, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Грейд в структуре компании')
+    employee_grade = models.ForeignKey(EmployeeGrade, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Грейд сотрудника')
+    boss = models.ForeignKey('Прямой руководитель работника', on_delete=models.SET_NULL, null=True, blank=True, related_name='subordinates')
+    team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='members', verbose_name='Команда')
+    it_component = models.ForeignKey(ITComponent, on_delete=models.SET_NULL, null=True, blank=True, related_name='users')
+    employment_type = models.ForeignKey(EmploymentType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Тип занятости')
     timezone = models.CharField(
         "Часовой пояс пользователя", max_length=32, choices=TIMEZONE_CHOICES, default='UTC'
     )
-    foreign_languages = models.ManyToManyField(ForeignLanguage, blank=True)
-    programming_languages = models.ManyToManyField(ProgrammingLanguages, blank=True)
-    programming_skills = models.ManyToManyField(ProgrammingSkills, blank=True)
-    contacts = models.ManyToManyField(Contact, related_name='contacts', blank=True)
+    foreign_languages = models.ManyToManyField(ForeignLanguage, blank=True, verbose_name='Иностранные языки')
+    programming_languages = models.ManyToManyField(ProgrammingLanguages, blank=True, verbose_name='Языки программирования')
+    programming_skills = models.ManyToManyField(ProgrammingSkills, blank=True, verbose_name='Навыки программирования')
+    contacts = models.ManyToManyField(Contact, related_name='contacts', blank=True, verbose_name='Контакты')
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

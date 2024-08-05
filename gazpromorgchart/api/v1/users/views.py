@@ -8,7 +8,7 @@ from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from core.users.models import (
-    User, ITComponent, Team, Position, Grade, EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills
+    User, Contact, ITComponent, Team, Position, Grade, EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills
 )
 from .serializers import (
     UserSerializer, UserListSerializer, UserDetailSerializer, ITComponentSerializer, TeamSerializer, PositionSerializer, 
