@@ -1,50 +1,191 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 import pytz
-
-from .validators import (
-    validate_links,
-    validate_phone_numbers,
-    validate_emails,
-    validate_hashtags
-)
 
 TIMEZONE_CHOICES = [(tz, tz) for tz in pytz.all_timezones]
 
-class Users(models.Model):
+class ITComponent(models.Model):
+    """Модель IT компонента"""
+    STATUS_CHOICES = [
+        ('ACTIVE', 'Активный'),
+        ('COMPLETED', 'Завершенный'),
+    ]
+    name = models.CharField("Название компонента", max_length=100)
+    description = models.TextField("Описание компонента", blank=True, null=True)
+    status = models.CharField("Статус", max_length=10, choices=STATUS_CHOICES, default='ACTIVE')
+
+    class Meta:
+        verbose_name = 'IT компонент'
+        verbose_name_plural = 'IT компоненты'
+
+    def __str__(self):
+        return self.name
+
+class Team(models.Model):
+    """Модель команды"""
+    TEAM_TYPE_CHOICES = [
+        ('STAFF', 'Штатные'),
+        ('OUTSOURCE', 'Аутсорс'),
+        ('VIRTUAL', 'Виртуальные'),
+    ]
+    name = models.CharField("Название команды", max_length=100)
+    team_type = models.CharField("Тип команды", max_length=10, choices=TEAM_TYPE_CHOICES)
+    it_component = models.ForeignKey(ITComponent, on_delete=models.CASCADE, related_name='teams')
+    employees = models.ManyToManyField('User', related_name='teams', blank=True)
+
+    class Meta:
+        verbose_name = 'Команда'
+        verbose_name_plural = 'Команды'
+
+    def __str__(self):
+        return self.name
+
+class Position(models.Model):
+    """Класс для модели должности"""
+    name = models.CharField("Должность пользователя", max_length=100, blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Должность'
+        verbose_name_plural = 'Должности'
+
+    def __str__(self):
+        return self.name
+
+class Grade(models.Model):
+    """Класс для модели грейда"""
+    GRADE_CHOICES = [
+        (1, 'Руководитель проектов'),
+        (2, 'Руководитель департамента'),
+        (3, 'Руководитель группы'),
+        (4, 'Работник'),
+    ]
+    id = models.PositiveSmallIntegerField(choices=GRADE_CHOICES, primary_key=True)
+
+    class Meta:
+        verbose_name = 'Грейд'
+        verbose_name_plural = 'Грейды'
+
+    def __str__(self):
+        return self.get_id_display()
+
+class EmployeeGrade(models.Model):
+    """Класс для модели грейда сотрудника"""
+    GRADE_CHOICES = [
+        ('Junior', 'Junior'),
+        ('Junior+', 'Junior+'),
+        ('Middle', 'Middle'),
+        ('Middle+', 'Middle+'),
+        ('Senior', 'Senior'),
+        ('Team Lead', 'Team Lead'),
+    ]
+    id = models.CharField(max_length=10, choices=GRADE_CHOICES, primary_key=True)
+
+    class Meta:
+        verbose_name = "Грейд сотрудника"
+        verbose_name_plural = "Грейды сотрудников"
+
+    def __str__(self):
+        return self.id
+
+class EmploymentType(models.Model):
+    """Класс для модели типа занятости"""
+    EMPLOYMENT_TYPE_CHOICES = [
+        ('FULL_TIME', 'Полная занятость'),
+        ('PART_TIME', 'Частичная занятость'),
+        ('CONTRACT', 'Контракт'),
+        ('TEMPORARY', 'Временная занятость'),
+        ('INTERN', 'Стажировка'),
+        ('FREELANCE', 'Фриланс'),
+    ]
+    employment_type = models.CharField("Тип занятости", max_length=20, choices=EMPLOYMENT_TYPE_CHOICES)
+
+    class Meta:
+        verbose_name = 'Тип занятости'
+        verbose_name_plural = 'Типы занятости'
+
+    def __str__(self):
+        return self.get_employment_type_display()
+
+class ForeignLanguage(models.Model):
+    """Класс для модели иностранных языков"""
+    foreignlanguages = models.CharField(
+        "Иностранные языки", max_length=255, blank=True, null=True
+    )
+
+    class Meta:
+        verbose_name = 'Иностранный язык'
+        verbose_name_plural = 'Иностранные языки'
+
+    def __str__(self):
+        return self.foreignlanguages
+
+class ProgrammingLanguages(models.Model):
+    """Класс для модели языков программирования"""
+    programminglanguages = models.CharField(
+        "Языки программирования", max_length=255, blank=True, null=True
+    )
+
+    class Meta:
+        verbose_name = 'Язык программирования'
+        verbose_name_plural = 'Языки программирования'
+
+    def __str__(self):
+        return self.programminglanguages
+
+class ProgrammingSkills(models.Model):
+    """Класс для модели навыков программирования"""
+    programmingskills = models.CharField(
+        "Навыки программирования", max_length=255, blank=True, null=True
+    )
+
+    class Meta:
+        verbose_name = 'Навык программирования'
+        verbose_name_plural = 'Навыки программирования'
+
+    def __str__(self):
+        return self.programmingskills
+
+class Contact(models.Model):
+    """Класс для модели контактов"""
+    user = models.ForeignKey('User', related_name='user_contacts', on_delete=models.CASCADE)
+    links = models.JSONField("Ссылки", default=list, blank=True)
+    emails = models.JSONField("Электронные почты", default=list, blank=True)
+    phones = models.JSONField("Телефоны", default=list, blank=True)
+
+    class Meta:
+        verbose_name = 'Контакт'
+        verbose_name_plural = 'Контакты'
+
+    def __str__(self):
+        return f'{self.user} - {self.emails}'
+
+class User(models.Model):
     """Модель пользователя"""
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True, unique=True)
     first_name = models.CharField("Имя", max_length=100)
     last_name = models.CharField("Фамилия", max_length=100)
     photo = models.ImageField(
-        "Фото пользователя", upload_to='photos/', blank=True, null=True
+        "Фото пользователя", upload_to='user_photos/', blank=True, null=True
     )
-    position = models.CharField("Должность пользователя", max_length=100)
-    grade = models.CharField("Грейд", max_length=50)
-    employment_type = models.CharField("Тип занятости", max_length=100)
+    position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Должность')
+    level = models.ForeignKey(Grade, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Грейд в структуре компании')
+    grade = models.ForeignKey(EmployeeGrade, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Грейд сотрудника')
+    bossId= models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='subordinates', verbose_name='Прямой руководитель')
+    teamId = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='members', verbose_name='Команда')
+    componentId = models.ForeignKey(ITComponent, on_delete=models.SET_NULL, null=True, blank=True, related_name='users')
+    employment_type = models.ForeignKey(EmploymentType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Тип занятости')
     timezone = models.CharField(
-        "Часовой пояс пользователя", max_length=32, choices=TIMEZONE_CHOICES, 
-        default='UTC'
+        "Часовой пояс пользователя", max_length=32, choices=TIMEZONE_CHOICES, default='UTC'
     )
-    foreign_languages = models.JSONField(
-        "Иностранные языки", blank=True, null=True, validators=[validate_hashtags]
-    )
-    programs = models.JSONField(
-        "Программы", blank=True, null=True, validators=[validate_hashtags],
-        default=list
-    )
-    skills = models.JSONField(
-        "Навыки", blank=True, null=True, validators=[validate_hashtags]
-    )
-    products = models.JSONField("Продукты", blank=True, null=True)
-    projects = models.JSONField("Проекты", blank=True, null=True)
-    contacts = models.JSONField(
-        "Контакты", blank=True, null=True
-    )
+    town = models.CharField("Город", max_length=100, default='Moscow')
+    foreign_languages = models.ManyToManyField(ForeignLanguage, blank=True, verbose_name='Иностранные языки')
+    programming_languages = models.ManyToManyField(ProgrammingLanguages, blank=True, verbose_name='Языки программирования')
+    programming_skills = models.ManyToManyField(ProgrammingSkills, blank=True, verbose_name='Навыки программирования')
+    contacts = models.ManyToManyField(Contact, blank=True, verbose_name='Контакты', related_name='user_contacts')
+    
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        app_label = 'users'
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f'{self.first_name} {self.last_name}'

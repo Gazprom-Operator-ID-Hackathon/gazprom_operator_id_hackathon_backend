@@ -1,71 +1,106 @@
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
-from django.contrib.auth.models import User
-from django.contrib.auth.password_validation import validate_password
-from core.users.models import Users
+from core.users.models import (
+    User, ITComponent, Team, Position, Grade, EmployeeGrade, EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills, Contact
+)
 
-class UserSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели пользователя"""
+class UserListSerializer(serializers.ModelSerializer):
+    position = serializers.StringRelatedField()
+
     class Meta:
         model = User
-        fields = '__all__'
-
-class UsersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Users
-        fields = '__all__'
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        request = self.context.get('request')
-        if instance.photo and hasattr(instance.photo, 'url'):
-            representation['photo_url'] = request.build_absolute_uri(instance.photo.url)
-        representation.pop('user', None)
-        return representation
-
-class UsersLimitedSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели пользователя с ограниченным набором полей"""
-    class Meta:
-        model = Users
         fields = ['first_name', 'last_name', 'position']
 
-class RegisterSerializer(serializers.ModelSerializer):
-    """Cериализатор для регистрации нового пользователя"""
-    email = serializers.EmailField(
-        required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
-    )
-    password = serializers.CharField(
-        write_only=True,
-        required=True,
-        validators=[validate_password]
-    )
-    password2 = serializers.CharField(write_only=True, required=True)
+class UserDetailSerializer(serializers.ModelSerializer):
+    position = serializers.StringRelatedField()
+    contacts = serializers.SerializerMethodField()
+    foreign_languages = serializers.StringRelatedField(many=True)
+    programming_languages = serializers.StringRelatedField(many=True)
+    programming_skills = serializers.StringRelatedField(many=True)
+    employment_type = serializers.StringRelatedField()
 
     class Meta:
         model = User
-        fields = ('username', 'password', 'password2', 'email', 'first_name', 'last_name')
-        extra_kwargs = {
-            'first_name': {'required': True},
-            'last_name': {'required': True}
-        }
+        fields = [
+            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 'grade', 'bossId', 'teamId', 'componentId',
+            'employment_type', 'timezone', 'town', 'foreign_languages', 'programming_languages', 'programming_skills', 'contacts'
+        ]
 
-    def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"password": "Пароли не совпадают."})
-        return attrs
+    def get_contacts(self, obj):
+        contacts = Contact.objects.filter(user=obj)
+        return ContactSerializer(contacts, many=True).data
 
-    def create(self, validated_data):
-        user = User.objects.create(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name']
-        )
-        user.set_password(validated_data['password'])
-        user.save()
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email')
 
-        # Создание профиля пользователя
-        Users.objects.create(user=user)
+class ITComponentSerializer(serializers.ModelSerializer):
+    teams = serializers.StringRelatedField(many=True)
 
-        return user
+    class Meta:
+        model = ITComponent
+        fields = '__all__'
+
+class TeamSerializer(serializers.ModelSerializer):
+    users = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Team
+        fields = '__all__'
+
+    def get_users(self, obj):
+        users = obj.users.all()
+        return UserListSerializer(users, many=True).data
+
+class PositionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Position
+        fields = '__all__'
+
+class GradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grade
+        fields = '__all__'
+
+class EmployeeGradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmployeeGrade
+        fields = '__all__'
+
+class EmploymentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmploymentType
+        fields = '__all__'
+
+class ForeignLanguageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ForeignLanguage
+        fields = '__all__'
+
+class ProgrammingLanguagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProgrammingLanguages
+        fields = '__all__'
+
+class ProgrammingSkillsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProgrammingSkills
+        fields = '__all__'
+
+class ContactSerializer(serializers.ModelSerializer):
+    links = serializers.SerializerMethodField()
+    emails = serializers.SerializerMethodField()
+    phones = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Contact
+        fields = ['links', 'emails', 'phones']
+
+    def get_links(self, obj):
+        return obj.links
+
+    def get_emails(self, obj):
+        return obj.emails
+
+    def get_phones(self, obj):
+        return obj.phones

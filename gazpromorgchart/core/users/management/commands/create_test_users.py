@@ -1,79 +1,45 @@
-import os
-import django
-from django.contrib.auth.models import User
+import random
 from django.core.management.base import BaseCommand
 from faker import Faker
-from core.users.models import Users, TIMEZONE_CHOICES
+from core.users.models import User, Position, Grade, EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills, Contact
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'gazpromorgchart.settings')
-django.setup()
-
-fake = Faker('ru_RU')  # Используем русскую локализацию
-
-IT_POSITIONS = [
-    'Программист',
-    'Системный администратор',
-    'Аналитик данных',
-    'Разработчик ПО',
-    'Тестировщик',
-    'Менеджер проектов',
-    'Сетевой инженер',
-    'Специалист по информационной безопасности',
-    'Веб-разработчик',
-    'Инженер DevOps'
-]
+fake = Faker()
 
 class Command(BaseCommand):
     help = 'Создание тестовых пользователей'
 
     def add_arguments(self, parser):
-        parser.add_argument('total', type=int, help='Количество тестовых пользователей для создания')
+        parser.add_argument('n', type=int, help='Количество создаваемых пользователей')
 
     def handle(self, *args, **kwargs):
-        total = kwargs['total']
-        for _ in range(total):
-            self.create_test_user()
+        n = kwargs['n']
+        positions = Position.objects.all()
+        grades = Grade.objects.all()
+        employment_types = EmploymentType.objects.all()
+        foreign_languages = ForeignLanguage.objects.all()
+        programming_languages = ProgrammingLanguages.objects.all()
+        programming_skills = ProgrammingSkills.objects.all()
 
-    def create_test_user(self):
-        username = fake.user_name()
-        email = fake.email()
-        password = 'password123'
-        first_name = fake.first_name()
-        last_name = fake.last_name()
+        for _ in range(n):
+            user = User.objects.create(
+                first_name=fake.first_name(),
+                last_name=fake.last_name(),
+                position=random.choice(positions) if positions else None,
+                grade=random.choice(grades) if grades else None,
+                employment_type=random.choice(employment_types) if employment_types else None,
+            )
+            if foreign_languages:
+                user.foreign_languages.set([random.choice(foreign_languages)])
+            if programming_languages:
+                user.programming_languages.set([random.choice(programming_languages)])
+            if programming_skills:
+                user.programming_skills.set([random.choice(programming_skills)])
+            
+            Contact.objects.create(
+                user=user,
+                email1=fake.email(),
+                phone1=fake.phone_number(),
+                social_link1=fake.url(),
+            )
 
-        # Создание пользователя
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name
-        )
-        user.save()
-
-        user_profile = Users.objects.create(
-            user=user,
-            first_name=first_name,
-            last_name=last_name,
-            photo=None,
-            position=fake.random_element(elements=IT_POSITIONS),
-            grade=fake.random_element(elements=('A', 'B', 'C', 'D')),
-            employment_type=fake.random_element(elements=('Full-time', 'Part-time', 'Contract')),
-            timezone=fake.random_element(elements=[tz for tz, _ in TIMEZONE_CHOICES]),
-            foreign_languages=fake.words(nb=3),
-            programs=fake.words(nb=3),
-            skills=fake.words(nb=3),
-            products=fake.words(nb=3),
-            projects=fake.words(nb=3),
-            contacts={
-                'email': fake.email(),
-                'phone': fake.phone_number(),
-                'link': fake.url()
-            }
-        )
-        user_profile.save()
-
-        self.stdout.write(self.style.SUCCESS(f'Пользователь {username} создан'))
-
-if __name__ == '__main__':
-    Command().handle(total=42)
+        self.stdout.write(self.style.SUCCESS(f'Successfully created {n} users'))
