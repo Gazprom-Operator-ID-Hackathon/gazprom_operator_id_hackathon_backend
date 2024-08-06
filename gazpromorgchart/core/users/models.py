@@ -148,20 +148,16 @@ class ProgrammingSkills(models.Model):
 class Contact(models.Model):
     """Класс для модели контактов"""
     user = models.ForeignKey('User', related_name='user_contacts', on_delete=models.CASCADE)
-    email1 = models.EmailField("Электронная почта 1", blank=True, null=True)
-    email2 = models.EmailField("Электронная почта 2", blank=True, null=True)
-    phone1 = models.CharField("Телефон 1", max_length=50, blank=True, null=True)
-    phone2 = models.CharField("Телефон 2", max_length=50, blank=True, null=True)
-    social_link1 = models.URLField("Социальная ссылка 1", blank=True, null=True)
-    social_link2 = models.URLField("Социальная ссылка 2", blank=True, null=True)
-    social_link3 = models.URLField("Социальная ссылка 3", blank=True, null=True)
+    links = models.JSONField("Ссылки", default=list, blank=True)
+    emails = models.JSONField("Электронные почты", default=list, blank=True)
+    phones = models.JSONField("Телефоны", default=list, blank=True)
 
     class Meta:
         verbose_name = 'Контакт'
         verbose_name_plural = 'Контакты'
 
     def __str__(self):
-        return f'{self.user} - {self.email1}'
+        return f'{self.user} - {self.emails}'
 
 class User(models.Model):
     """Модель пользователя"""

@@ -97,10 +97,10 @@ class ContactSerializer(serializers.ModelSerializer):
         fields = ['links', 'emails', 'phones']
 
     def get_links(self, obj):
-        return [obj.social_link1, obj.social_link2, obj.social_link3]
+        return obj.links
 
     def get_emails(self, obj):
-        return [obj.email1, obj.email2]
+        return obj.emails
 
     def get_phones(self, obj):
-        return [obj.phone1, obj.phone2]
+        return obj.phones
