@@ -3,11 +3,11 @@ from rest_framework.routers import DefaultRouter
 from .views import UsersViewSet, UserMeView, UserDetailView, ProjectsViewSet
 
 router = DefaultRouter()
+router.register(r'users', UsersViewSet, basename='user')
+router.register(r'projects', ProjectsViewSet, basename='project')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('users/', UsersViewSet.as_view({'get': 'list'}), name='users-list'),
     path('users/me', UserMeView.as_view(), name='user-me'),
     path('users/<int:pk>', UserDetailView.as_view(), name='user-detail'),
-    path('projects/', ProjectsViewSet.as_view({'get': 'list'}), name='projects-list'),
 ]

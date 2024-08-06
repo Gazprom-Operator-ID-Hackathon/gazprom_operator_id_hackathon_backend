@@ -163,7 +163,7 @@ class Contact(models.Model):
     def __str__(self):
         return f'{self.user} - {self.email1}'
 
-class User(AbstractUser):
+class User(models.Model):
     """Модель пользователя"""
     id = models.AutoField(primary_key=True, unique=True)
     first_name = models.CharField("Имя", max_length=100)

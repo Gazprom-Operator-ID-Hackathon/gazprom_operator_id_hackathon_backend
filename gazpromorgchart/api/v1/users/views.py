@@ -11,12 +11,10 @@ from .serializers import (
 )
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
-    """Вьюсет для получения списка пользователей с ограниченным набором полей"""
     queryset = User.objects.all()
     serializer_class = UserListSerializer
 
 class UserMeView(APIView):
-    """Вьюсет для получения данных текущего пользователя"""
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -25,13 +23,11 @@ class UserMeView(APIView):
         return Response(serializer.data)
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """Вьюсет для получения данных другого пользователя по ID и выполнения CRUD операций"""
     queryset = User.objects.all()
     serializer_class = UserDetailSerializer
     lookup_field = 'pk'
 
 class ProjectsViewSet(viewsets.ReadOnlyModelViewSet):
-    """Вьюсет для получения списка проектов"""
     queryset = ITComponent.objects.all()
     serializer_class = ITComponentSerializer
 

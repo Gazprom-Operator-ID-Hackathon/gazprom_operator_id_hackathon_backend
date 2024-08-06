@@ -10,6 +10,25 @@ class UserListSerializer(serializers.ModelSerializer):
         model = User
         fields = ['first_name', 'last_name', 'position']
 
+class UserDetailSerializer(serializers.ModelSerializer):
+    position = serializers.StringRelatedField()
+    contacts = serializers.SerializerMethodField()
+    foreign_languages = serializers.StringRelatedField(many=True)
+    programming_languages = serializers.StringRelatedField(many=True)
+    programming_skills = serializers.StringRelatedField(many=True)
+    employment_type = serializers.StringRelatedField()
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 'grade', 'bossId', 'teamId', 'componentId',
+            'employment_type', 'timezone', 'town', 'foreign_languages', 'programming_languages', 'programming_skills', 'contacts'
+        ]
+
+    def get_contacts(self, obj):
+        contacts = Contact.objects.filter(user=obj)
+        return ContactSerializer(contacts, many=True).data
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -85,34 +104,3 @@ class ContactSerializer(serializers.ModelSerializer):
 
     def get_phones(self, obj):
         return [obj.phone1, obj.phone2]
-
-class UserDetailSerializer(serializers.ModelSerializer):
-    position = serializers.StringRelatedField()
-    level = serializers.StringRelatedField()
-    grade = serializers.StringRelatedField()
-    boss = serializers.StringRelatedField()
-    team = serializers.StringRelatedField()
-    it_component = serializers.StringRelatedField()
-    employment_type = serializers.StringRelatedField()
-    foreign_languages = serializers.StringRelatedField(many=True)
-    programming_languages = serializers.StringRelatedField(many=True)
-    contacts = ContactSerializer(many=True, read_only=True)
-    programming_skills = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = [
-            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 'grade', 
-            'boss', 'team', 'it_component', 'employment_type', 'timezone', 
-            'foreign_languages', 'programming_languages', 'programming_skills', 'contacts'
-        ]
-
-    def get_programming_skills(self, obj):
-        return [skill.programmingskills for skill in obj.programming_skills.all()]
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['foreign_languages'] = representation.get('foreign_languages', [])
-        representation['programming_languages'] = representation.get('programming_languages', [])
-        representation['programming_skills'] = self.get_programming_skills(instance)
-        return representation
