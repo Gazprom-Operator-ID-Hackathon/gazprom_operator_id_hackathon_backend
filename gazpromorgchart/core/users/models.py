@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 import pytz
 
 TIMEZONE_CHOICES = [(tz, tz) for tz in pytz.all_timezones]
@@ -31,7 +31,7 @@ class Team(models.Model):
     name = models.CharField("Название команды", max_length=100)
     team_type = models.CharField("Тип команды", max_length=10, choices=TEAM_TYPE_CHOICES)
     it_component = models.ForeignKey(ITComponent, on_delete=models.CASCADE, related_name='teams')
-    employees = models.ManyToManyField(User, related_name='teams', blank=True)
+    employees = models.ManyToManyField('User', related_name='teams', blank=True)
 
     class Meta:
         verbose_name = 'Команда'
@@ -72,8 +72,11 @@ class EmployeeGrade(models.Model):
     """Класс для модели грейда сотрудника"""
     GRADE_CHOICES = [
         ('Junior', 'Junior'),
+        ('Junior+', 'Junior+'),
         ('Middle', 'Middle'),
+        ('Middle+', 'Middle+'),
         ('Senior', 'Senior'),
+        ('Team Lead', 'Team Lead'),
     ]
     id = models.CharField(max_length=10, choices=GRADE_CHOICES, primary_key=True)
 
@@ -144,7 +147,7 @@ class ProgrammingSkills(models.Model):
 
 class Contact(models.Model):
     """Класс для модели контактов"""
-    user = models.ForeignKey(User, related_name='user_contacts', on_delete=models.CASCADE)
+    user = models.ForeignKey('User', related_name='user_contacts', on_delete=models.CASCADE)
     email1 = models.EmailField("Электронная почта 1", blank=True, null=True)
     email2 = models.EmailField("Электронная почта 2", blank=True, null=True)
     phone1 = models.CharField("Телефон 1", max_length=50, blank=True, null=True)
@@ -160,9 +163,9 @@ class Contact(models.Model):
     def __str__(self):
         return f'{self.user} - {self.email1}'
 
-class User(models.Model):
+class User(AbstractUser):
     """Модель пользователя"""
-    id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True, unique=True)
     first_name = models.CharField("Имя", max_length=100)
     last_name = models.CharField("Фамилия", max_length=100)
     photo = models.ImageField(
@@ -171,13 +174,14 @@ class User(models.Model):
     position = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Должность')
     level = models.ForeignKey(Grade, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Грейд в структуре компании')
     grade = models.ForeignKey(EmployeeGrade, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Грейд сотрудника')
-    boss = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='subordinates', verbose_name='Прямой руководитель')
-    team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='members', verbose_name='Команда')
-    it_component = models.ForeignKey(ITComponent, on_delete=models.SET_NULL, null=True, blank=True, related_name='users')
+    bossId= models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='subordinates', verbose_name='Прямой руководитель')
+    teamId = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='members', verbose_name='Команда')
+    componentId = models.ForeignKey(ITComponent, on_delete=models.SET_NULL, null=True, blank=True, related_name='users')
     employment_type = models.ForeignKey(EmploymentType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Тип занятости')
     timezone = models.CharField(
         "Часовой пояс пользователя", max_length=32, choices=TIMEZONE_CHOICES, default='UTC'
     )
+    town = models.CharField("Город", max_length=100, default='Moscow')
     foreign_languages = models.ManyToManyField(ForeignLanguage, blank=True, verbose_name='Иностранные языки')
     programming_languages = models.ManyToManyField(ProgrammingLanguages, blank=True, verbose_name='Языки программирования')
     programming_skills = models.ManyToManyField(ProgrammingSkills, blank=True, verbose_name='Навыки программирования')
