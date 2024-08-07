@@ -147,7 +147,7 @@ class ProgrammingSkills(models.Model):
 
 class Contact(models.Model):
     """Класс для модели контактов"""
-    user = models.ForeignKey('User', related_name='user_contacts', on_delete=models.CASCADE)
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
     links = models.JSONField("Ссылки", default=list, blank=True)
     emails = models.JSONField("Электронные почты", default=list, blank=True)
     phones = models.JSONField("Телефоны", default=list, blank=True)
@@ -179,8 +179,8 @@ class User(models.Model):
     )
     town = models.CharField("Город", max_length=100, default='Москва')
     foreign_languages = models.ManyToManyField(ForeignLanguage, blank=True, verbose_name='Иностранные языки')
-    programming_languages = models.ManyToManyField(ProgrammingLanguages, blank=True, verbose_name='Языки программирования')
-    programming_skills = models.ManyToManyField(ProgrammingSkills, blank=True, verbose_name='Навыки программирования')
+    programs = models.ManyToManyField(ProgrammingLanguages, blank=True, verbose_name='Языки программирования')
+    skills = models.ManyToManyField(ProgrammingSkills, blank=True, verbose_name='Навыки программирования')
     contacts = models.ManyToManyField(Contact, blank=True, verbose_name='Контакты', related_name='user_contacts')
     
     class Meta:

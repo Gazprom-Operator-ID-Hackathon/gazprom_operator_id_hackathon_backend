@@ -10,25 +10,6 @@ class UserListSerializer(serializers.ModelSerializer):
         model = User
         fields = ['first_name', 'last_name', 'position']
 
-class UserDetailSerializer(serializers.ModelSerializer):
-    position = serializers.StringRelatedField()
-    contacts = serializers.SerializerMethodField()
-    foreign_languages = serializers.StringRelatedField(many=True)
-    programming_languages = serializers.StringRelatedField(many=True)
-    programming_skills = serializers.StringRelatedField(many=True)
-    employment_type = serializers.StringRelatedField()
-
-    class Meta:
-        model = User
-        fields = [
-            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 'grade', 'bossId', 'teamId', 'componentId',
-            'employment_type', 'timezone', 'town', 'foreign_languages', 'programming_languages', 'programming_skills', 'contacts'
-        ]
-
-    def get_contacts(self, obj):
-        contacts = Contact.objects.filter(user=obj)
-        return ContactSerializer(contacts, many=True).data
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -88,19 +69,34 @@ class ProgrammingSkillsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ContactSerializer(serializers.ModelSerializer):
-    links = serializers.SerializerMethodField()
-    emails = serializers.SerializerMethodField()
-    phones = serializers.SerializerMethodField()
-
     class Meta:
         model = Contact
         fields = ['links', 'emails', 'phones']
 
-    def get_links(self, obj):
-        return obj.links
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        return {
+            'links': representation['links'],
+            'emails': representation['emails'],
+            'phones': representation['phones']
+        }
 
-    def get_emails(self, obj):
-        return obj.emails
+class UserDetailSerializer(serializers.ModelSerializer):
+    position = serializers.StringRelatedField()
+    contacts = serializers.SerializerMethodField()
+    foreign_languages = serializers.StringRelatedField(many=True)
+    programs = serializers.StringRelatedField(many=True)
+    skills = serializers.StringRelatedField(many=True)
+    employment_type = serializers.StringRelatedField()
 
-    def get_phones(self, obj):
-        return obj.phones
+    class Meta:
+        model = User
+        fields = [
+            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 'grade', 
+            'bossId', 'teamId', 'componentId', 'employment_type', 'timezone', 'town', 
+            'foreign_languages', 'programs', 'skills', 'contacts'
+        ]
+
+    def get_contacts(self, obj):
+        contact = Contact.objects.filter(user=obj).first()
+        return ContactSerializer(contact).data if contact else None
