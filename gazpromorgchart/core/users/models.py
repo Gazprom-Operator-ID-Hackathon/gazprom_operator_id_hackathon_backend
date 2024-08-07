@@ -177,7 +177,7 @@ class User(models.Model):
     timezone = models.CharField(
         "Часовой пояс пользователя", max_length=32, choices=TIMEZONE_CHOICES, default='UTC'
     )
-    town = models.CharField("Город", max_length=100, default='Moscow')
+    town = models.CharField("Город", max_length=100, default='Москва')
     foreign_languages = models.ManyToManyField(ForeignLanguage, blank=True, verbose_name='Иностранные языки')
     programming_languages = models.ManyToManyField(ProgrammingLanguages, blank=True, verbose_name='Языки программирования')
     programming_skills = models.ManyToManyField(ProgrammingSkills, blank=True, verbose_name='Навыки программирования')
