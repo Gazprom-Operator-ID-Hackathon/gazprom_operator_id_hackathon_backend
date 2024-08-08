@@ -15,23 +15,17 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email')
 
+class TeamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ['name', 'id', 'it_component', 'employees']
+
 class ITComponentSerializer(serializers.ModelSerializer):
-    teams = serializers.StringRelatedField(many=True)
+    teams = TeamSerializer(many=True, read_only=True)
 
     class Meta:
         model = ITComponent
-        fields = '__all__'
-
-class TeamSerializer(serializers.ModelSerializer):
-    users = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Team
-        fields = '__all__'
-
-    def get_users(self, obj):
-        users = obj.users.all()
-        return UserListSerializer(users, many=True).data
+        fields = ['name', 'id', 'teams']
 
 class PositionSerializer(serializers.ModelSerializer):
     class Meta:

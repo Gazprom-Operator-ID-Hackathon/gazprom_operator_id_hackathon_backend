@@ -36,7 +36,7 @@ class ProjectsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ITComponent.objects.all()
     serializer_class = ITComponentSerializer
 
-class ITComponentViewSet(viewsets.ModelViewSet):
+class ITComponentViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ITComponent.objects.all()
     serializer_class = ITComponentSerializer
 
