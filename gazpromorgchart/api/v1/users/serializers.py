@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from core.users.models import (
-    User, ITComponent, Team, Position, Grade, EmployeeGrade, EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills, Contact
+    User, Department, ITComponent, Team, Position, Grade, EmployeeGrade, EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills, Contact
 )
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -100,3 +100,11 @@ class UserDetailSerializer(serializers.ModelSerializer):
     def get_contacts(self, obj):
         contact = Contact.objects.filter(user=obj).first()
         return ContactSerializer(contact).data if contact else None
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    department_leadId = serializers.PrimaryKeyRelatedField(source='department_lead', queryset=User.objects.all())
+    teamId = serializers.PrimaryKeyRelatedField(source='teams', many=True, queryset=Team.objects.all())
+
+    class Meta:
+        model = Department
+        fields = ['name', 'id', 'department_leadId', 'teamId']

@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 import pytz
 
 TIMEZONE_CHOICES = [(tz, tz) for tz in pytz.all_timezones]
@@ -66,7 +65,7 @@ class Grade(models.Model):
         verbose_name_plural = 'Грейды'
 
     def __str__(self):
-        return self.get_id_display()
+        return dict(self.GRADE_CHOICES).get(self.id, 'Неизвестный грейд')
 
 class EmployeeGrade(models.Model):
     """Класс для модели грейда сотрудника"""
@@ -81,8 +80,8 @@ class EmployeeGrade(models.Model):
     id = models.CharField(max_length=10, choices=GRADE_CHOICES, primary_key=True)
 
     class Meta:
-        verbose_name = "Грейд сотрудника"
-        verbose_name_plural = "Грейды сотрудников"
+        verbose_name = 'Грейд сотрудника'
+        verbose_name_plural = 'Грейды сотрудников'
 
     def __str__(self):
         return self.id
@@ -104,7 +103,7 @@ class EmploymentType(models.Model):
         verbose_name_plural = 'Типы занятости'
 
     def __str__(self):
-        return self.get_employment_type_display()
+        return self.employment_type
 
 class ForeignLanguage(models.Model):
     """Класс для модели иностранных языков"""
@@ -182,10 +181,25 @@ class User(models.Model):
     programs = models.ManyToManyField(ProgrammingLanguages, blank=True, verbose_name='Языки программирования')
     skills = models.ManyToManyField(ProgrammingSkills, blank=True, verbose_name='Навыки программирования')
     contacts = models.ManyToManyField(Contact, blank=True, verbose_name='Контакты', related_name='user_contacts')
-    
+    department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True, related_name='users', verbose_name='Департамент')
+
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
+
+class Department(models.Model):
+    """Модель департамента"""
+    name = models.CharField(max_length=100)
+    department_lead = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lead_departments')
+    teams = models.ManyToManyField(Team, related_name='departments')
+
+    class Meta:
+        verbose_name = 'Департамент'
+        verbose_name_plural = 'Департаменты'
+
+    def __str__(self):
+        return self.name

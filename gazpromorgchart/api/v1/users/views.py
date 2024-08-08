@@ -1,13 +1,18 @@
-from rest_framework import viewsets, generics, status, serializers
+from rest_framework import viewsets, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from core.users.models import (
-    User, Contact, ITComponent, Team, Position, Grade, EmployeeGrade, EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills
+    User, Department, Contact, ITComponent, Team, Position, Grade, 
+    EmployeeGrade, EmploymentType, ForeignLanguage, ProgrammingLanguages, 
+    ProgrammingSkills
 )
 from .serializers import (
-    UserSerializer, UserListSerializer, UserDetailSerializer, ITComponentSerializer, TeamSerializer, PositionSerializer, 
-    GradeSerializer, EmployeeGradeSerializer, EmploymentTypeSerializer, ForeignLanguageSerializer, ProgrammingLanguagesSerializer, ProgrammingSkillsSerializer, ContactSerializer
+    DepartmentSerializer, UserListSerializer, UserDetailSerializer, 
+    ITComponentSerializer, TeamSerializer, PositionSerializer, 
+    GradeSerializer, EmployeeGradeSerializer, EmploymentTypeSerializer, 
+    ForeignLanguageSerializer, ProgrammingLanguagesSerializer, 
+    ProgrammingSkillsSerializer, ContactSerializer
 )
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
@@ -76,3 +81,7 @@ class UserContactsView(generics.ListAPIView):
             return Contact.objects.none()
         user_id = self.kwargs['pk']
         return Contact.objects.filter(user=user_id)
+
+class DepartmentViewSet(viewsets.ModelViewSet):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
