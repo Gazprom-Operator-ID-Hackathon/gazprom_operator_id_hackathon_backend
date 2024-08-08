@@ -85,3 +85,7 @@ class UserContactsView(generics.ListAPIView):
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
+
+class ProjectsViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ITComponent.objects.all()
+    serializer_class = ITComponentSerializer

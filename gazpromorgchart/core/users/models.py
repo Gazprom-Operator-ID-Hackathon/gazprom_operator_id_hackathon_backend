@@ -12,6 +12,7 @@ class ITComponent(models.Model):
     name = models.CharField("Название компонента", max_length=100)
     description = models.TextField("Описание компонента", blank=True, null=True)
     status = models.CharField("Статус", max_length=10, choices=STATUS_CHOICES, default='ACTIVE')
+    teams = models.ManyToManyField('Team', related_name='it_components', blank=True, null=True)
 
     class Meta:
         verbose_name = 'IT компонент'
@@ -29,7 +30,7 @@ class Team(models.Model):
     ]
     name = models.CharField("Название команды", max_length=100)
     team_type = models.CharField("Тип команды", max_length=10, choices=TEAM_TYPE_CHOICES)
-    it_component = models.ForeignKey(ITComponent, on_delete=models.CASCADE, related_name='teams')
+    it_component = models.ForeignKey(ITComponent, on_delete=models.CASCADE, blank=True, null=True, related_name='teams_in_team')
     employees = models.ManyToManyField('User', related_name='teams', blank=True)
 
     class Meta:
