@@ -10,16 +10,21 @@ class ITComponent(models.Model):
         ('web', 'Веб'),
         ('back', 'Бэкэнд'),
     ]
+    STATUS_CHOICES = [
+        ('active', 'Активный'),
+        ('inactive', 'Неактивный'),
+    ]
     name = models.CharField("Название компонента", max_length=100)
     description = models.TextField("Описание компонента", blank=True, null=True)
     isActive = models.BooleanField("Активен", default=True)
     teams = models.ManyToManyField('Team', related_name='it_components', blank=True)
     component_leadId = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='component_lead')
     type = models.CharField("Тип", max_length=10, choices=TYPE_CHOICES, default='web')
+    status = models.CharField("Статус", max_length=10, choices=STATUS_CHOICES, default='active')
 
     class Meta:
-        verbose_name = 'IT компонент'
-        verbose_name_plural = 'IT компоненты'
+        verbose_name = "IT компонент"
+        verbose_name_plural = "IT компоненты"
 
     def __str__(self):
         return self.name
@@ -34,6 +39,13 @@ class Team(models.Model):
     name = models.CharField("Название команды", max_length=100)
     team_type = models.CharField("Тип команды", max_length=10, choices=TEAM_TYPE_CHOICES)
     it_component = models.ForeignKey(ITComponent, on_delete=models.CASCADE, blank=True, null=True, related_name='teams_in_team')
+    team_leadId = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='lead_teams', verbose_name='Руководитель команды')
+    componentId = models.ManyToManyField(ITComponent, related_name='teams', blank=True, verbose_name='Компоненты')
+    usersId = models.ManyToManyField('User', related_name='teams', blank=True, verbose_name='Пользователи')
+    departmentId = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True, related_name='teams', verbose_name='Департамент')
+    performance = models.TextField("Производительность", blank=True, null=True)
+    description = models.TextField("Описание", blank=True, null=True)
+    links = models.JSONField("Ссылки", default=list, blank=True)
     employees = models.ManyToManyField('User', related_name='teams', blank=True)
 
     class Meta:
