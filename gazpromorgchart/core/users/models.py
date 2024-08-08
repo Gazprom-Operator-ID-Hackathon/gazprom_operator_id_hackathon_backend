@@ -21,6 +21,7 @@ class ITComponent(models.Model):
     component_leadId = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='component_lead')
     type = models.CharField("Тип", max_length=10, choices=TYPE_CHOICES, default='web')
     status = models.CharField("Статус", max_length=10, choices=STATUS_CHOICES, default='active')
+    resources = models.ManyToManyField('Resources', through='TeamResources', related_name='it_components')
 
     class Meta:
         verbose_name = "IT компонент"
@@ -36,17 +37,18 @@ class Team(models.Model):
         ('OUTSOURCE', 'Аутсорс'),
         ('VIRTUAL', 'Виртуальные'),
     ]
+    teamId = models.AutoField(primary_key=True, unique=True)
     name = models.CharField("Название команды", max_length=100)
     team_type = models.CharField("Тип команды", max_length=10, choices=TEAM_TYPE_CHOICES)
     it_component = models.ForeignKey(ITComponent, on_delete=models.CASCADE, blank=True, null=True, related_name='teams_in_team')
     team_leadId = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='lead_teams', verbose_name='Руководитель команды')
-    componentId = models.ManyToManyField(ITComponent, related_name='teams', blank=True, verbose_name='Компоненты')
-    usersId = models.ManyToManyField('User', related_name='teams', blank=True, verbose_name='Пользователи')
-    departmentId = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True, related_name='teams', verbose_name='Департамент')
+    componentId = models.ManyToManyField(ITComponent, related_name='teams_component', blank=True, verbose_name='Компоненты')
+    usersId = models.ManyToManyField('User', related_name='teams_users', blank=True, verbose_name='Пользователи')
+    departmentId = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True, related_name='teams_department', verbose_name='Департамент')
     performance = models.TextField("Производительность", blank=True, null=True)
     description = models.TextField("Описание", blank=True, null=True)
     links = models.JSONField("Ссылки", default=list, blank=True)
-    employees = models.ManyToManyField('User', related_name='teams', blank=True)
+    employees = models.ManyToManyField('User', related_name='teams_employees', blank=True)
 
     class Meta:
         verbose_name = 'Команда'
@@ -228,3 +230,25 @@ class Department(models.Model):
 
     def __str__(self):
         return self.name
+
+class Resources(models.Model):
+    """Модель ресурсов"""
+    teamId = models.ForeignKey('Team', on_delete=models.CASCADE, related_name='resources')
+    cost = models.PositiveIntegerField("Трудозатраты в поинтах")
+    progress = models.PositiveIntegerField("Прогресс выполнения", validators=[MinValueValidator(0), MaxValueValidator(100)])
+
+    class Meta:
+        verbose_name = 'Ресурс'
+        verbose_name_plural = 'Ресурсы'
+
+    def __str__(self):
+        return f'{self.teamId} - {self.cost} - {self.progress}'
+
+class TeamResources(models.Model):
+    """Модель для связи ITComponent и Resources через Team"""
+    it_component = models.ForeignKey(ITComponent, on_delete=models.CASCADE)
+    resources = models.ForeignKey(Resources, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('it_component', 'resources', 'team')
