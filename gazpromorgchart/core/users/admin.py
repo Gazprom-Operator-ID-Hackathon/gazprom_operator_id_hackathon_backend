@@ -9,6 +9,7 @@ from .models import (
 class ITComponentAdmin(admin.ModelAdmin):
     list_display = ('name', 'status')
     search_fields = ('name', 'status')
+    filter_horizontal = ('teams',)
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):

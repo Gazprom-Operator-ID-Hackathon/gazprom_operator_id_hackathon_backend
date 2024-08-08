@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ['id', 'name', 'team_leadId', 'componentId', 'usersId']
+        fields = ['id', 'name', 'team_type', 'it_component', 'employees']
 
 class ITComponentSerializer(serializers.ModelSerializer):
     teams = TeamSerializer(many=True, read_only=True)
@@ -30,13 +30,13 @@ class ITComponentSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         teams_representation = []
-        for team in representation['teams']:
+        for team in instance.teams.all():
             teams_representation.append({
-                'name': team['name'],
-                'id': team['id'],
-                'team_leadId': team['team_leadId'],
-                'componentId': team['componentId'],
-                'usersId': team['usersId'],
+                'id': team.id,
+                'name': team.name,
+                'team_type': team.team_type,
+                'it_component': team.it_component.id if team.it_component else None,
+                'employees': [employee.id for employee in team.employees.all()]
             })
         return {
             'id': representation['id'],
