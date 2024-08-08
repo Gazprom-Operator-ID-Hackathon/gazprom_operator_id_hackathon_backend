@@ -27,7 +27,7 @@ class ITComponentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ITComponent
-        fields = '__all__'
+        fields = ['name', 'id', 'component_leadId', 'teams', 'isActive', 'type']
 
 class PositionSerializer(serializers.ModelSerializer):
     class Meta:

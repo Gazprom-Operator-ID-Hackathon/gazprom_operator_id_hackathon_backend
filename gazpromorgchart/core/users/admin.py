@@ -65,6 +65,6 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'department_lead')
+    list_display = ('name', 'department_leadId')
     search_fields = ('name', 'department_lead__first_name', 'department_lead__last_name')
     filter_horizontal = ('teams',)

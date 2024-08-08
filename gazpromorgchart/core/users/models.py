@@ -5,14 +5,17 @@ TIMEZONE_CHOICES = [(tz, tz) for tz in pytz.all_timezones]
 
 class ITComponent(models.Model):
     """Модель IT компонента"""
-    STATUS_CHOICES = [
-        ('ACTIVE', 'Активный'),
-        ('COMPLETED', 'Завершенный'),
+    TYPE_CHOICES = [
+        ('mobile', 'Мобильный'),
+        ('web', 'Веб'),
+        ('back', 'Бэкэнд'),
     ]
     name = models.CharField("Название компонента", max_length=100)
     description = models.TextField("Описание компонента", blank=True, null=True)
-    status = models.CharField("Статус", max_length=10, choices=STATUS_CHOICES, default='ACTIVE')
-    teams = models.ManyToManyField('Team', related_name='it_components', blank=True, null=True)
+    isActive = models.BooleanField("Активен", default=True)
+    teams = models.ManyToManyField('Team', related_name='it_components', blank=True)
+    component_leadId = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='component_lead')
+    type = models.CharField("Тип", max_length=10, choices=TYPE_CHOICES, default='web')
 
     class Meta:
         verbose_name = 'IT компонент'
@@ -194,8 +197,17 @@ class User(models.Model):
 
 class Department(models.Model):
     """Модель департамента"""
-    name = models.CharField(max_length=100)
-    department_lead = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lead_departments')
+    DEPARTMENT_NAME_CHOICES = [
+        ('Дизайн', 'Дизайн'),
+        ('Девелопмент', 'Девелопмент'),
+        ('Анализ', 'Анализ'),
+        ('Менеджмент', 'Менеджмент'),
+        ('Маркетинг', 'Маркетинг'),
+        ('HR', 'HR'),
+        ('Девопсы', 'Девопсы'),
+    ]
+    name = models.CharField("Название отдела", max_length=20, choices=DEPARTMENT_NAME_CHOICES, default='Дизайн')
+    department_leadId = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lead_departments')
     teams = models.ManyToManyField(Team, related_name='departments')
 
     class Meta:
