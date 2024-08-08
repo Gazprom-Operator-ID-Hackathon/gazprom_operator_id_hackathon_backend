@@ -12,7 +12,7 @@ from .serializers import (
     ITComponentSerializer, TeamSerializer, PositionSerializer, 
     GradeSerializer, EmployeeGradeSerializer, EmploymentTypeSerializer, 
     ForeignLanguageSerializer, ProgrammingLanguagesSerializer, 
-    ProgrammingSkillsSerializer, ContactSerializer
+    ProgrammingSkillsSerializer, ContactSerializer, CombinedSerializer
 )
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
@@ -89,3 +89,18 @@ class DepartmentViewSet(viewsets.ModelViewSet):
 class ProjectsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ITComponent.objects.all()
     serializer_class = ITComponentSerializer
+
+class CombinedView(APIView):
+    def get(self, request, *args, **kwargs):
+        components = ITComponent.objects.all()
+        departments = Department.objects.all()
+        teams = Team.objects.all()
+        
+        data = {
+            'components': components,
+            'departments': departments,
+            'teams': teams
+        }
+        
+        serializer = CombinedSerializer(data)
+        return Response(serializer.data)

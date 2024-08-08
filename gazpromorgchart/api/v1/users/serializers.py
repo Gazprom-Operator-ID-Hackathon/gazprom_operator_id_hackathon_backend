@@ -16,33 +16,18 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email')
 
 class TeamSerializer(serializers.ModelSerializer):
+    employees = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all())
+
     class Meta:
         model = Team
-        fields = ['id', 'name', 'team_type', 'it_component', 'employees']
+        fields = '__all__'
 
 class ITComponentSerializer(serializers.ModelSerializer):
     teams = TeamSerializer(many=True, read_only=True)
 
     class Meta:
         model = ITComponent
-        fields = ['id', 'name', 'teams']
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        teams_representation = []
-        for team in instance.teams.all():
-            teams_representation.append({
-                'id': team.id,
-                'name': team.name,
-                'team_type': team.team_type,
-                'it_component': team.it_component.id if team.it_component else None,
-                'employees': [employee.id for employee in team.employees.all()]
-            })
-        return {
-            'id': representation['id'],
-            'name': representation['name'],
-            'teams': teams_representation,
-        }
+        fields = '__all__'
 
 class PositionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -113,9 +98,14 @@ class UserDetailSerializer(serializers.ModelSerializer):
         return ContactSerializer(contact).data if contact else None
 
 class DepartmentSerializer(serializers.ModelSerializer):
-    department_leadId = serializers.PrimaryKeyRelatedField(source='department_lead', queryset=User.objects.all())
-    teamId = serializers.PrimaryKeyRelatedField(source='teams', many=True, queryset=Team.objects.all())
+    department_lead = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    teams = serializers.PrimaryKeyRelatedField(many=True, queryset=Team.objects.all())
 
     class Meta:
         model = Department
-        fields = ['name', 'id', 'department_leadId', 'teamId']
+        fields = '__all__'
+
+class CombinedSerializer(serializers.Serializer):
+    components = ITComponentSerializer(many=True)
+    departments = DepartmentSerializer(many=True)
+    teams = TeamSerializer(many=True)
