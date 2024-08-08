@@ -7,8 +7,8 @@ from .models import (
 
 @admin.register(ITComponent)
 class ITComponentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'status')
-    search_fields = ('name', 'status')
+    list_display = ('name', 'isActive')
+    search_fields = ('name',)
     filter_horizontal = ('teams',)
 
 @admin.register(Team)
