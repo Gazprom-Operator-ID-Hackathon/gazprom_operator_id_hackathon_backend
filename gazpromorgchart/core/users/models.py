@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 import pytz
 
@@ -38,18 +39,17 @@ class Team(models.Model):
         ('OUTSOURCE', 'Аутсорс'),
         ('VIRTUAL', 'Виртуальные'),
     ]
-    teamId = models.AutoField(primary_key=True, unique=True)
+    id = models.AutoField(primary_key=True, unique=True)
     name = models.CharField("Название команды", max_length=100)
     team_type = models.CharField("Тип команды", max_length=10, choices=TEAM_TYPE_CHOICES)
     it_component = models.ForeignKey(ITComponent, on_delete=models.CASCADE, blank=True, null=True, related_name='teams_in_team')
     team_leadId = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='lead_teams', verbose_name='Руководитель команды')
-    componentId = models.ManyToManyField(ITComponent, related_name='teams_component', blank=True, verbose_name='Компоненты')
+    componentIds = models.ManyToManyField(ITComponent, related_name='teams_component', blank=True, verbose_name='Компоненты')
     usersId = models.ManyToManyField('User', related_name='teams_users', blank=True, verbose_name='Пользователи')
     departmentId = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True, related_name='teams_department', verbose_name='Департамент')
-    performance = models.TextField("Производительность", blank=True, null=True)
+    performance = models.TextField("Эффективность", blank=True, null=True)
     description = models.TextField("Описание", blank=True, null=True)
     links = models.JSONField("Ссылки", default=list, blank=True)
-    employees = models.ManyToManyField('User', related_name='teams_employees', blank=True)
 
     class Meta:
         verbose_name = "Команда"
@@ -165,7 +165,7 @@ class ProgrammingSkills(models.Model):
 
 class Contact(models.Model):
     """Класс для модели контактов"""
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='contacts')
     links = models.JSONField("Ссылки", default=list, blank=True)
     emails = models.JSONField("Электронные почты", default=list, blank=True)
     phones = models.JSONField("Телефоны", default=list, blank=True)
@@ -175,7 +175,9 @@ class Contact(models.Model):
         verbose_name_plural = 'Контакты'
 
     def __str__(self):
-        return self.emails
+        if isinstance(self.emails, list):
+            return ', '.join(self.emails)
+        return str(self.emails)
 
 class User(models.Model):
     """Модель пользователя"""
@@ -233,7 +235,7 @@ class Department(models.Model):
         return self.name
 
 class Resources(models.Model):
-    team = models.ForeignKey('Team', on_delete=models.CASCADE)
+    teamId = models.ForeignKey('Team', on_delete=models.CASCADE)
     cost = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(100000)])
     progress = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
 

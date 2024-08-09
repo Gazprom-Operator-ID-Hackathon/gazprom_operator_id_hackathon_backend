@@ -15,7 +15,7 @@ class ITComponentAdmin(admin.ModelAdmin):
 class TeamAdmin(admin.ModelAdmin):
     list_display = ('name', 'team_type', 'it_component')
     search_fields = ('name', 'team_type')
-    filter_horizontal = ('employees',)
+    filter_horizontal = ('usersId',)
 
 @admin.register(Position)
 class PositionAdmin(admin.ModelAdmin):
@@ -65,8 +65,8 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Resources)
 class ResourcesAdmin(admin.ModelAdmin):
-    list_display = ('team', 'cost', 'progress')
-    search_fields = ('team__name',)
+    list_display = ('teamId', 'cost', 'progress')
+    search_fields = ('teamId__name',)
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):

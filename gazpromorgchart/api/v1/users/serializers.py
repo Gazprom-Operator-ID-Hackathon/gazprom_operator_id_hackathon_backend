@@ -18,11 +18,10 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email')
 
 class TeamSerializer(serializers.ModelSerializer):
-    employees = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all())
 
     class Meta:
         model = Team
-        fields = '__all__'
+        fields = ('name', 'teamId', 'team_leadId', 'componentIds', 'usersId', 'departmentId', 'performance', 'description', 'links')
 
 class ResourcesSerializer(serializers.ModelSerializer):
     class Meta:

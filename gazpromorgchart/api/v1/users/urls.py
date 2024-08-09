@@ -1,7 +1,6 @@
-# urls.py-1
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UsersViewSet, UserMeView, UserDetailView, ProjectsViewSet, ITComponentViewSet, CombinedView
+from .views import UsersViewSet, UserMeView, UserDetailView, ProjectsViewSet, ITComponentViewSet, ProjectsView
 
 router = DefaultRouter()
 router.register(r'users', UsersViewSet, basename='user')
@@ -12,5 +11,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('users/me', UserMeView.as_view(), name='user-me'),
     path('users/<int:pk>', UserDetailView.as_view(), name='user-detail'),
-    path('combined/', CombinedView.as_view(), name='combined-view'),
+    path('projects', ProjectsView.as_view(), name='projects'),
 ]

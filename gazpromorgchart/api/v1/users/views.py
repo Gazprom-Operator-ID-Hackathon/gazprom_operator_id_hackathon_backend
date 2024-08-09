@@ -80,7 +80,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
 
-class CombinedView(APIView):
+class ProjectsView(APIView):
     def get(self, request, *args, **kwargs):
         components = ITComponent.objects.all()
         departments = Department.objects.all()
