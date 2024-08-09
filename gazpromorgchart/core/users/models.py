@@ -37,7 +37,6 @@ class Team(models.Model):
     TEAM_TYPE_CHOICES = [
         ('STAFF', 'Штатные'),
         ('OUTSOURCE', 'Аутсорс'),
-        ('VIRTUAL', 'Виртуальные'),
     ]
     id = models.AutoField(primary_key=True, unique=True)
     name = models.CharField("Название команды", max_length=100)
