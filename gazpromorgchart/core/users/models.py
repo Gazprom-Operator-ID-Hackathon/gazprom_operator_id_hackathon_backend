@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 import pytz
 
 TIMEZONE_CHOICES = [(tz, tz) for tz in pytz.all_timezones]
@@ -21,7 +22,7 @@ class ITComponent(models.Model):
     component_leadId = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='component_lead')
     type = models.CharField("Тип", max_length=10, choices=TYPE_CHOICES, default='web')
     status = models.CharField("Статус", max_length=10, choices=STATUS_CHOICES, default='active')
-    resources = models.ManyToManyField('Resources', through='TeamResources', related_name='it_components')
+    resources = models.ManyToManyField('Resources', related_name='it_components', blank=True)
 
     class Meta:
         verbose_name = "IT компонент"
@@ -51,8 +52,8 @@ class Team(models.Model):
     employees = models.ManyToManyField('User', related_name='teams_employees', blank=True)
 
     class Meta:
-        verbose_name = 'Команда'
-        verbose_name_plural = 'Команды'
+        verbose_name = "Команда"
+        verbose_name_plural = "Команды"
 
     def __str__(self):
         return self.name
@@ -62,11 +63,11 @@ class Position(models.Model):
     name = models.CharField("Должность пользователя", max_length=100, blank=True, null=True)
 
     class Meta:
-        verbose_name = 'Должность'
-        verbose_name_plural = 'Должности'
+        verbose_name = "Должность"
+        verbose_name_plural = "Должности"
 
     def __str__(self):
-        return self.name
+        return self.name or ""
 
 class Grade(models.Model):
     """Класс для модели грейда"""
@@ -79,11 +80,11 @@ class Grade(models.Model):
     id = models.PositiveSmallIntegerField(choices=GRADE_CHOICES, primary_key=True)
 
     class Meta:
-        verbose_name = 'Грейд'
-        verbose_name_plural = 'Грейды'
+        verbose_name = "Грейд"
+        verbose_name_plural = "Грейды"
 
     def __str__(self):
-        return dict(self.GRADE_CHOICES).get(self.id, 'Неизвестный грейд')
+        return dict(self.GRADE_CHOICES).get(self.id, "")
 
 class EmployeeGrade(models.Model):
     """Класс для модели грейда сотрудника"""
@@ -98,11 +99,11 @@ class EmployeeGrade(models.Model):
     id = models.CharField(max_length=10, choices=GRADE_CHOICES, primary_key=True)
 
     class Meta:
-        verbose_name = 'Грейд сотрудника'
-        verbose_name_plural = 'Грейды сотрудников'
+        verbose_name = "Грейд сотрудника"
+        verbose_name_plural = "Грейды сотрудников"
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
 class EmploymentType(models.Model):
     """Класс для модели типа занятости"""
@@ -174,7 +175,7 @@ class Contact(models.Model):
         verbose_name_plural = 'Контакты'
 
     def __str__(self):
-        return f'{self.user} - {self.emails}'
+        return self.emails
 
 class User(models.Model):
     """Модель пользователя"""
@@ -206,7 +207,7 @@ class User(models.Model):
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+        return f"{self.first_name} {self.last_name}"
 
 
 class Department(models.Model):
@@ -220,35 +221,25 @@ class Department(models.Model):
         ('HR', 'HR'),
         ('Девопсы', 'Девопсы'),
     ]
-    name = models.CharField("Название отдела", max_length=20, choices=DEPARTMENT_NAME_CHOICES, default='Дизайн')
-    department_leadId = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lead_departments')
-    teams = models.ManyToManyField(Team, related_name='departments')
+    name = models.CharField(max_length=100, choices=DEPARTMENT_NAME_CHOICES)
+    department_leadId = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='lead_departments')
+    teamsId = models.ManyToManyField(Team, related_name='departments', blank=True, verbose_name='ID групп')
 
     class Meta:
-        verbose_name = 'Департамент'
-        verbose_name_plural = 'Департаменты'
+        verbose_name = "Департамент"
+        verbose_name_plural = "Департаменты"
 
     def __str__(self):
         return self.name
 
 class Resources(models.Model):
-    """Модель ресурсов"""
-    teamId = models.ForeignKey('Team', on_delete=models.CASCADE, related_name='resources')
-    cost = models.PositiveIntegerField("Трудозатраты в поинтах")
-    progress = models.PositiveIntegerField("Прогресс выполнения", validators=[MinValueValidator(0), MaxValueValidator(100)])
+    team = models.ForeignKey('Team', on_delete=models.CASCADE)
+    cost = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(100000)])
+    progress = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
 
     class Meta:
-        verbose_name = 'Ресурс'
-        verbose_name_plural = 'Ресурсы'
+        verbose_name = "Resource"
+        verbose_name_plural = "Resources"
 
     def __str__(self):
-        return f'{self.teamId} - {self.cost} - {self.progress}'
-
-class TeamResources(models.Model):
-    """Модель для связи ITComponent и Resources через Team"""
-    it_component = models.ForeignKey(ITComponent, on_delete=models.CASCADE)
-    resources = models.ForeignKey(Resources, on_delete=models.CASCADE)
-    team = models.ForeignKey(Team, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('it_component', 'resources', 'team')
+        return f"Team {self.team.name} - Cost: {self.cost}, Progress: {self.progress}%"

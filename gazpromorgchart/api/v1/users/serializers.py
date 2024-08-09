@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from core.users.models import (
-    User, Department, ITComponent, Team, Position, Grade, EmployeeGrade, EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills, Contact
+    User, Department, ITComponent, Team, Position, Grade, EmployeeGrade,
+    EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills,
+    Contact, Resources
 )
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -22,12 +24,17 @@ class TeamSerializer(serializers.ModelSerializer):
         model = Team
         fields = '__all__'
 
+class ResourcesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Resources
+        fields = ['team', 'cost', 'progress']
+
 class ITComponentSerializer(serializers.ModelSerializer):
-    teams = TeamSerializer(many=True, read_only=True)
+    resources = ResourcesSerializer(many=True, read_only=True)
 
     class Meta:
         model = ITComponent
-        fields = ['name', 'id', 'component_leadId', 'teams', 'isActive', 'type']
+        fields = ['name', 'id', 'component_leadId', 'resources', 'isActive', 'type']
 
 class PositionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -67,15 +74,10 @@ class ProgrammingSkillsSerializer(serializers.ModelSerializer):
 class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
-        fields = ['links', 'emails', 'phones']
+        fields = '__all__'
 
     def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        return {
-            'links': representation['links'],
-            'emails': representation['emails'],
-            'phones': representation['phones']
-        }
+        return super().to_representation(instance)
 
 class UserDetailSerializer(serializers.ModelSerializer):
     position = serializers.StringRelatedField()
@@ -87,23 +89,18 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = [
-            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 'grade', 
-            'bossId', 'teamId', 'componentId', 'employment_type', 'timezone', 'town', 
-            'foreign_languages', 'programs', 'skills', 'contacts'
-        ]
+        fields = '__all__'
 
     def get_contacts(self, obj):
-        contact = Contact.objects.filter(user=obj).first()
-        return ContactSerializer(contact).data if contact else None
+        return ContactSerializer(obj.contacts.all(), many=True).data
 
 class DepartmentSerializer(serializers.ModelSerializer):
-    department_lead = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    teams = serializers.PrimaryKeyRelatedField(many=True, queryset=Team.objects.all())
+    department_leadId = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    teamsId = serializers.PrimaryKeyRelatedField(many=True, queryset=Team.objects.all())
 
     class Meta:
         model = Department
-        fields = '__all__'
+        fields = ['name', 'id', 'department_leadId', 'teamsId']
 
 class CombinedSerializer(serializers.Serializer):
     components = ITComponentSerializer(many=True)

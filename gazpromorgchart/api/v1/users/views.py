@@ -76,31 +76,24 @@ class UserContactsView(generics.ListAPIView):
     """Вьюсет для получения контактов пользователя по его ID"""
     serializer_class = ContactSerializer
 
-    def get_queryset(self):
-        if getattr(self, 'swagger_fake_view', False):
-            return Contact.objects.none()
-        user_id = self.kwargs['pk']
-        return Contact.objects.filter(user=user_id)
-
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
-
-class ProjectsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ITComponent.objects.all()
-    serializer_class = ITComponentSerializer
 
 class CombinedView(APIView):
     def get(self, request, *args, **kwargs):
         components = ITComponent.objects.all()
         departments = Department.objects.all()
         teams = Team.objects.all()
-        
-        data = {
-            'components': components,
-            'departments': departments,
-            'teams': teams
+
+        components_serializer = ITComponentSerializer(components, many=True)
+        departments_serializer = DepartmentSerializer(departments, many=True)
+        teams_serializer = TeamSerializer(teams, many=True)
+
+        combined_data = {
+            'components': components_serializer.data,
+            'departments': departments_serializer.data,
+            'teams': teams_serializer.data
         }
-        
-        serializer = CombinedSerializer(data)
-        return Response(serializer.data)
+
+        return Response(combined_data)

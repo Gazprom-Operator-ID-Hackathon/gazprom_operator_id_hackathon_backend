@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     ITComponent, Team, Position, Grade, EmployeeGrade, EmploymentType, 
     ForeignLanguage, ProgrammingLanguages, ProgrammingSkills, 
-    Contact, User, Department
+    Contact, User, Department, Resources
 )
 
 @admin.register(ITComponent)
@@ -63,8 +63,13 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ('first_name', 'last_name', 'position__name', 'level__id', 'grade__id', 'employment_type__employment_type', 'town')
     filter_horizontal = ('foreign_languages', 'programs', 'skills', 'contacts')
 
+@admin.register(Resources)
+class ResourcesAdmin(admin.ModelAdmin):
+    list_display = ('team', 'cost', 'progress')
+    search_fields = ('team__name',)
+
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('name', 'department_leadId')
-    search_fields = ('name', 'department_lead__first_name', 'department_lead__last_name')
-    filter_horizontal = ('teams',)
+    search_fields = ('name', 'department_leadId__first_name', 'department_leadId__last_name')
+    filter_horizontal = ('teamsId',)
