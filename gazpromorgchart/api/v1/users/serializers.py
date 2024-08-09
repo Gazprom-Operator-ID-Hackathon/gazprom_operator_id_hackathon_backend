@@ -21,7 +21,7 @@ class TeamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
-        fields = ('name', 'id', 'team_leadId', 'componentIds', 'usersId', 'departmentId', 'performance', 'description', 'links')
+        fields = ('name', 'id', 'team_leadId', 'componentIds', 'usersId', 'performance', 'description', 'links')
 
 class ResourcesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -73,10 +73,11 @@ class ProgrammingSkillsSerializer(serializers.ModelSerializer):
 class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
-        fields = '__all__'
+        fields = ['links', 'emails', 'phones']
 
     def to_representation(self, instance):
-        return super().to_representation(instance)
+        representation = super().to_representation(instance)
+        return representation
 
 class UserDetailSerializer(serializers.ModelSerializer):
     position = serializers.StringRelatedField()
@@ -88,10 +89,18 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = [
+            'id', 'position', 'contacts', 'foreign_languages', 'programs', 
+            'skills', 'employment_type', 'first_name', 'last_name', 'photo', 
+            'timezone', 'town', 'level', 'grade', 'bossId', 'teamId', 
+            'componentId', 'department'
+        ]
 
     def get_contacts(self, obj):
-        return ContactSerializer(obj.contacts.all(), many=True).data
+        contact = obj.contacts.first()
+        if contact:
+            return ContactSerializer(contact).data
+        return None
 
 class DepartmentSerializer(serializers.ModelSerializer):
     department_leadId = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())

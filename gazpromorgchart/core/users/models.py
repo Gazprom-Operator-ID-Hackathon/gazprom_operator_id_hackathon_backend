@@ -41,7 +41,6 @@ class Team(models.Model):
     id = models.AutoField(primary_key=True, unique=True)
     name = models.CharField("Название команды", max_length=100)
     team_type = models.CharField("Тип команды", max_length=10, choices=TEAM_TYPE_CHOICES)
-    it_component = models.ForeignKey(ITComponent, on_delete=models.CASCADE, blank=True, null=True, related_name='teams_in_team')
     team_leadId = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='lead_teams', verbose_name='Руководитель команды')
     componentIds = models.ForeignKey(ITComponent, on_delete=models.CASCADE, blank=True, null=True, related_name='teams_in_team')
     usersId = models.ManyToManyField('User', related_name='teams_users', blank=True, verbose_name='Пользователи')

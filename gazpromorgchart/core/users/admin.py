@@ -13,7 +13,7 @@ class ITComponentAdmin(admin.ModelAdmin):
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'team_type', 'it_component')
+    list_display = ('name', 'team_type', 'componentIds')
     search_fields = ('name', 'team_type')
     filter_horizontal = ('usersId',)
 
