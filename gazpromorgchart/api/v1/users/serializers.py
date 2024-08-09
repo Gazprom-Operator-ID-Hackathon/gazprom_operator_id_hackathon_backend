@@ -21,12 +21,12 @@ class TeamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
-        fields = ('name', 'teamId', 'team_leadId', 'componentIds', 'usersId', 'departmentId', 'performance', 'description', 'links')
+        fields = ('name', 'id', 'team_leadId', 'componentIds', 'usersId', 'departmentId', 'performance', 'description', 'links')
 
 class ResourcesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Resources
-        fields = ['team', 'cost', 'progress']
+        fields = ['teamId', 'cost', 'progress']
 
 class ITComponentSerializer(serializers.ModelSerializer):
     resources = ResourcesSerializer(many=True, read_only=True)

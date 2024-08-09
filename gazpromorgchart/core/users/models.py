@@ -44,7 +44,7 @@ class Team(models.Model):
     team_type = models.CharField("Тип команды", max_length=10, choices=TEAM_TYPE_CHOICES)
     it_component = models.ForeignKey(ITComponent, on_delete=models.CASCADE, blank=True, null=True, related_name='teams_in_team')
     team_leadId = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='lead_teams', verbose_name='Руководитель команды')
-    componentIds = models.ManyToManyField(ITComponent, related_name='teams_component', blank=True, verbose_name='Компоненты')
+    componentIds = models.ForeignKey(ITComponent, on_delete=models.CASCADE, blank=True, null=True, related_name='teams_in_team')
     usersId = models.ManyToManyField('User', related_name='teams_users', blank=True, verbose_name='Пользователи')
     departmentId = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True, related_name='teams_department', verbose_name='Департамент')
     performance = models.TextField("Эффективность", blank=True, null=True)
@@ -244,4 +244,4 @@ class Resources(models.Model):
         verbose_name_plural = "Resources"
 
     def __str__(self):
-        return f"Team {self.team.name} - Cost: {self.cost}, Progress: {self.progress}%"
+        return f"{self.teamId.name} - {self.cost} - {self.progress}%"
