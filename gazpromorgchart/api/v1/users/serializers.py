@@ -81,19 +81,20 @@ class ContactSerializer(serializers.ModelSerializer):
 
 class UserDetailSerializer(serializers.ModelSerializer):
     position = serializers.StringRelatedField()
-    contacts = serializers.SerializerMethodField()
-    foreign_languages = serializers.StringRelatedField(many=True)
-    programs = serializers.StringRelatedField(many=True)
-    skills = serializers.StringRelatedField(many=True)
+    grade = serializers.StringRelatedField()
     employment_type = serializers.StringRelatedField()
+    foreign_languages = serializers.StringRelatedField(many=True)
+    programs = serializers.StringRelatedField(source='programming_languages', many=True)
+    skills = serializers.StringRelatedField(source='programming_skills', many=True)
+    contacts = ContactSerializer()
+    departmentId = serializers.PrimaryKeyRelatedField(source='department', read_only=True)
 
     class Meta:
         model = User
         fields = [
-            'id', 'position', 'contacts', 'foreign_languages', 'programs', 
-            'skills', 'employment_type', 'first_name', 'last_name', 'photo', 
-            'timezone', 'town', 'level', 'grade', 'bossId', 'teamId', 
-            'componentId', 'department'
+            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 'grade', 'bossId', 
+            'teamId', 'componentId', 'departmentId', 'employment_type', 'timezone', 'town', 
+            'foreign_languages', 'programs', 'skills', 'contacts'
         ]
 
     def get_contacts(self, obj):

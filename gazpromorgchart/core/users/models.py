@@ -200,7 +200,7 @@ class User(models.Model):
     programs = models.ManyToManyField(ProgrammingLanguages, blank=True, verbose_name='Языки программирования')
     skills = models.ManyToManyField(ProgrammingSkills, blank=True, verbose_name='Навыки программирования')
     contacts = models.ManyToManyField(Contact, blank=True, verbose_name='Контакты', related_name='user_contacts')
-    department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True, related_name='users', verbose_name='Департамент')
+    departmentId = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True, related_name='users', verbose_name='Департамент')
 
     class Meta:
         verbose_name = 'Пользователь'
