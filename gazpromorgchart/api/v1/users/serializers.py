@@ -7,6 +7,8 @@ from core.users.models import (
 
 class UserContactLinksSerializer(serializers.Serializer):
     links = serializers.ListField(child=serializers.URLField())
+    emails = serializers.ListField(child=serializers.EmailField())
+    phones = serializers.ListField(child=serializers.CharField())
 
 
 
@@ -107,19 +109,35 @@ class UserListSerializer(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     position = serializers.StringRelatedField()
     grade = serializers.StringRelatedField()
-    employment_type = serializers.StringRelatedField()
+    employment_type = serializers.SerializerMethodField()
     foreign_languages = serializers.StringRelatedField(many=True)
-    programs = serializers.StringRelatedField(source='programming_languages', many=True)
-    skills = serializers.StringRelatedField(source='programming_skills', many=True)
-    contacts = ContactSerializer()
-    departmentId = serializers.PrimaryKeyRelatedField(source='department', read_only=True)
+    programs = serializers.StringRelatedField(many=True)
+    skills = serializers.StringRelatedField(many=True)
+    contacts = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = [
+            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 
+            'grade', 'bossId', 'teamId', 'componentId', 'departmentId', 
+            'employment_type', 'timezone', 'town', 'foreign_languages', 
+            'programs', 'skills', 'contacts'
+        ]
+
+    def get_employment_type(self, obj):
+        if obj.employment_type:
+            return dict(EmploymentType.EMPLOYMENT_TYPE_CHOICES).get(obj.employment_type.employment_type)
+        return None
 
     def get_contacts(self, obj):
-        return obj.contacts
+        links = []
+        emails = []
+        phones = []
+        for contact in obj.contacts.all():
+            links.extend(contact.links)
+            emails.extend(contact.emails)
+            phones.extend(contact.phones)
+        return {'links': links, 'emails': emails, 'phones': phones}
 
 class DepartmentSerializer(serializers.ModelSerializer):
     department_leadId = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
