@@ -5,12 +5,10 @@ from core.users.models import (
     Contact, Resources
 )
 
-class UserListSerializer(serializers.ModelSerializer):
-    position = serializers.StringRelatedField()
+class UserContactLinksSerializer(serializers.Serializer):
+    links = serializers.ListField(child=serializers.URLField())
 
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'position']
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,22 +16,21 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email')
 
 class TeamSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Team
-        fields = ('name', 'id', 'team_leadId', 'componentIds', 'usersId', 'performance', 'description', 'links')
+        fields = '__all__'
 
 class ResourcesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Resources
-        fields = ['teamId', 'cost', 'progress']
+        fields = '__all__'
 
 class ITComponentSerializer(serializers.ModelSerializer):
     resources = ResourcesSerializer(many=True, read_only=True)
 
     class Meta:
         model = ITComponent
-        fields = ['name', 'id', 'component_leadId', 'resources', 'isActive', 'type']
+        fields = '__all__'
 
 class PositionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -73,11 +70,39 @@ class ProgrammingSkillsSerializer(serializers.ModelSerializer):
 class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
-        fields = ['links', 'emails', 'phones']
+        fields = '__all__'
 
     def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        return representation
+        return super().to_representation(instance)
+
+class UserListSerializer(serializers.ModelSerializer):
+    position = serializers.CharField(source='position.name', read_only=True)
+    level = serializers.CharField(source='grade.id', read_only=True)
+    bossId = serializers.IntegerField(source='bossId.id', read_only=True)
+    componentId = serializers.IntegerField(source='componentId.id', read_only=True)
+    teamId = serializers.IntegerField(source='teamId.id', read_only=True)
+    departmentId = serializers.IntegerField(source='departmentId.id', read_only=True)
+    employment_type = serializers.SerializerMethodField()
+    contacts = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 
+            'bossId', 'componentId', 'teamId', 'departmentId', 'employment_type', 
+            'town', 'timezone', 'contacts'
+        ]
+
+    def get_employment_type(self, obj):
+        if obj.employment_type:
+            return dict(EmploymentType.EMPLOYMENT_TYPE_CHOICES).get(obj.employment_type.employment_type)
+        return None
+
+    def get_contacts(self, obj):
+        links = []
+        for contact in obj.contacts.all():
+            links.extend(contact.links)
+        return {'links': links}
 
 class UserDetailSerializer(serializers.ModelSerializer):
     position = serializers.StringRelatedField()
@@ -91,17 +116,10 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = [
-            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 'grade', 'bossId', 
-            'teamId', 'componentId', 'departmentId', 'employment_type', 'timezone', 'town', 
-            'foreign_languages', 'programs', 'skills', 'contacts'
-        ]
+        fields = '__all__'
 
     def get_contacts(self, obj):
-        contact = obj.contacts.first()
-        if contact:
-            return ContactSerializer(contact).data
-        return None
+        return obj.contacts
 
 class DepartmentSerializer(serializers.ModelSerializer):
     department_leadId = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
@@ -109,7 +127,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Department
-        fields = ['name', 'id', 'department_leadId', 'teamsId']
+        fields = '__all__'
 
 class CombinedSerializer(serializers.Serializer):
     components = ITComponentSerializer(many=True)
