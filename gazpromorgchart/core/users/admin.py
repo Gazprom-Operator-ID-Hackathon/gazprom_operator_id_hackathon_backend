@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
 from .models import (
     ITComponent, Team, Position, Grade, EmployeeGrade, EmploymentType, 
     ForeignLanguage, ProgrammingLanguages, ProgrammingSkills, 
@@ -64,10 +65,11 @@ class UserAdmin(admin.ModelAdmin):
     filter_horizontal = ('foreign_languages', 'programs', 'skills', 'contacts')
 
     def save_model(self, request, obj, form, change):
-        if change:
-            obj.save()
+        super().save_model(request, obj, form, change)
+        if 'is_staff' in form.cleaned_data and form.cleaned_data['is_staff']:
+            obj.add_to_group('Администраторы')
         else:
-            super().save_model(request, obj, form, change)
+            obj.add_to_group('Пользователи')
 
 @admin.register(Resources)
 class ResourcesAdmin(admin.ModelAdmin):

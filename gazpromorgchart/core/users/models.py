@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 import pytz
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -227,6 +228,10 @@ class User(models.Model):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+    def add_to_group(self, group_name):
+        group, created = Group.objects.get_or_create(name=group_name)
+        self.groups.add(group)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
