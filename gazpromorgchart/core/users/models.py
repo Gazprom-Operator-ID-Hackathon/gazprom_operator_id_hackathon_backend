@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-import uuid
 import pytz
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -14,22 +13,22 @@ current_user_id = 400
 def generate_it_component_id():
     global current_it_component_id
     current_it_component_id += 1
-    return str(current_it_component_id)
+    return current_it_component_id
 
 def generate_team_id():
     global current_team_id
     current_team_id += 1
-    return str(current_team_id)
+    return current_team_id
 
 def generate_department_id():
     global current_department_id
     current_department_id += 1
-    return str(current_department_id)
+    return current_department_id
 
 def generate_user_id():
     global current_user_id
     current_user_id += 1
-    return str(current_user_id)
+    return current_user_id
 
 class ITComponent(models.Model):
     """Модель IT компонента"""
@@ -42,7 +41,7 @@ class ITComponent(models.Model):
         ('active', 'Активный'),
         ('inactive', 'Неактивный'),
     ]
-    id = models.CharField(primary_key=True, max_length=100, default=generate_it_component_id)
+    id = models.PositiveIntegerField(primary_key=True, default=generate_it_component_id)
     name = models.CharField("Название компонента", max_length=100)
     description = models.TextField("Описание компонента", blank=True, null=True)
     isActive = models.BooleanField("Активен", default=True)
@@ -62,7 +61,7 @@ class Team(models.Model):
         ('STAFF', 'Штатные'),
         ('OUTSOURCE', 'Аутсорс'),
     ]
-    id = models.CharField(primary_key=True, max_length=100, default=generate_team_id)
+    id = models.PositiveIntegerField(primary_key=True, default=generate_team_id)
     name = models.CharField("Название команды", max_length=100)
     team_type = models.CharField("Тип команды", max_length=10, choices=TEAM_TYPE_CHOICES)
     team_leadId = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True, related_name='lead_teams', verbose_name='Руководитель команды')
@@ -202,7 +201,7 @@ class Contact(models.Model):
 
 class User(models.Model):
     """Модель пользователя"""
-    id = models.CharField(primary_key=True, max_length=100, default=generate_user_id)
+    id = models.PositiveIntegerField(primary_key=True, default=generate_user_id)
     first_name = models.CharField("Имя", max_length=100)
     last_name = models.CharField("Фамилия", max_length=100)
     photo = models.ImageField(
@@ -232,7 +231,6 @@ class User(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
-
 class Department(models.Model):
     """Модель департамента"""
     DEPARTMENT_NAME_CHOICES = [
@@ -244,7 +242,7 @@ class Department(models.Model):
         ('HR', 'HR'),
         ('Девопсы', 'Девопсы'),
     ]
-    id = models.CharField(primary_key=True, max_length=100, default=generate_department_id)
+    id = models.PositiveIntegerField(primary_key=True, default=generate_department_id)
     name = models.CharField(max_length=100, choices=DEPARTMENT_NAME_CHOICES)
     department_leadId = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='lead_departments')
     teamsId = models.ManyToManyField(Team, related_name='departments', blank=True, verbose_name='ID групп')
@@ -255,7 +253,6 @@ class Department(models.Model):
 
     def __str__(self):
         return self.name
-
 
 class Resources(models.Model):
     teamId = models.ForeignKey('Team', on_delete=models.CASCADE)
