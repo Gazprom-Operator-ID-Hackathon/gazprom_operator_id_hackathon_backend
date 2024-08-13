@@ -63,6 +63,12 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ('first_name', 'last_name', 'position__name', 'level__id', 'grade__id', 'employment_type__employment_type', 'town')
     filter_horizontal = ('foreign_languages', 'programs', 'skills', 'contacts')
 
+    def save_model(self, request, obj, form, change):
+        if change:
+            obj.save()
+        else:
+            super().save_model(request, obj, form, change)
+
 @admin.register(Resources)
 class ResourcesAdmin(admin.ModelAdmin):
     list_display = ('teamId', 'cost', 'progress')
