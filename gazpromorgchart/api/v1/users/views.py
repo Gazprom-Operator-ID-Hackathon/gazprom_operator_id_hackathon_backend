@@ -1,7 +1,9 @@
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView
+from django.contrib.auth import get_user_model
 from core.users.models import (
     User, Department, Contact, ITComponent, Team, Position, Grade, 
     EmployeeGrade, EmploymentType, ForeignLanguage, ProgrammingLanguages, 
@@ -12,7 +14,8 @@ from .serializers import (
     ITComponentSerializer, TeamSerializer, PositionSerializer, 
     GradeSerializer, EmployeeGradeSerializer, EmploymentTypeSerializer, 
     ForeignLanguageSerializer, ProgrammingLanguagesSerializer, 
-    ProgrammingSkillsSerializer, ContactSerializer, CombinedSerializer
+    ProgrammingSkillsSerializer, ContactSerializer, UserSerializer,
+    MyTokenObtainPairSerializer
 )
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
@@ -97,3 +100,10 @@ class ProjectsView(APIView):
         }
 
         return Response(combined_data)
+
+class RegisterView(generics.CreateAPIView):
+    queryset = get_user_model().objects.all()
+    serializer_class = UserSerializer
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer

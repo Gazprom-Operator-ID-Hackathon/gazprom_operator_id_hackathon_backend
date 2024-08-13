@@ -1,22 +1,19 @@
 from django.contrib import admin
-from django.contrib.auth.models import Group
 from .models import (
     ITComponent, Team, Position, Grade, EmployeeGrade, EmploymentType, 
     ForeignLanguage, ProgrammingLanguages, ProgrammingSkills, 
     Contact, User, Department, Resources
 )
 
-admin.site.register(Group)
-
 @admin.register(ITComponent)
 class ITComponentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'isActive')
-    search_fields = ('name',)
-    filter_horizontal = ('teams',)
+    list_display = ('name', 'isActive', 'type', 'status')
+    search_fields = ('name', 'type', 'status')
+    filter_horizontal = ('teams', 'resources')
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'team_type', 'componentIds')
+    list_display = ('name', 'team_type', 'team_leadId', 'componentIds', 'departmentId')
     search_fields = ('name', 'team_type')
     filter_horizontal = ('usersId',)
 
@@ -43,7 +40,6 @@ class EmploymentTypeAdmin(admin.ModelAdmin):
 @admin.register(ForeignLanguage)
 class ForeignLanguageAdmin(admin.ModelAdmin):
     list_display = ('foreignlanguages',)
-    search_fields = ('foreignlanguages',)
 
 @admin.register(ProgrammingLanguages)
 class ProgrammingLanguagesAdmin(admin.ModelAdmin):
@@ -57,28 +53,21 @@ class ProgrammingSkillsAdmin(admin.ModelAdmin):
 
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
-    list_display = ('user', 'emails')
-    search_fields = ('user__first_name', 'user__last_name', 'emails')
+    list_display = ('user',)
+    search_fields = ('user',)
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'position', 'level', 'grade', 'employment_type', 'timezone', 'town')
-    search_fields = ('first_name', 'last_name', 'position__name', 'level__id', 'grade__id', 'employment_type__employment_type', 'town')
-    filter_horizontal = ('foreign_languages', 'programs', 'skills', 'contacts')
-
-    def save_model(self, request, obj, form, change):
-        if change:
-            obj.save()
-        else:
-            super().save_model(request, obj, form, change)
+    list_display = ('first_name', 'last_name')
+    search_fields = ('first_name', 'last_name')
 
 @admin.register(Resources)
 class ResourcesAdmin(admin.ModelAdmin):
-    list_display = ('teamId', 'cost', 'progress')
-    search_fields = ('teamId__name',)
+    list_display = ('id',)
+    search_fields = ('id',)
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('name', 'department_leadId')
-    search_fields = ('name', 'department_leadId__first_name', 'department_leadId__last_name')
+    search_fields = ('name',)
     filter_horizontal = ('teamsId',)

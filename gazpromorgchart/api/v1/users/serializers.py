@@ -4,6 +4,10 @@ from core.users.models import (
     EmploymentType, ForeignLanguage, ProgrammingLanguages, ProgrammingSkills,
     Contact, Resources
 )
+from django.contrib.auth import get_user_model, authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
+
+User = get_user_model()
 
 class UserContactLinksSerializer(serializers.Serializer):
     links = serializers.ListField(child=serializers.URLField())
@@ -15,7 +19,37 @@ class UserContactLinksSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email')
+        fields = ('id', 'first_name', 'last_name', 'username', 'email', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name']
+        )
+        return user
+
+class MyTokenObtainPairSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        password = attrs.get('password')
+
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            refresh = RefreshToken.for_user(user)
+            return {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+        else:
+            raise serializers.ValidationError('Invalid credentials')
 
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
