@@ -1,9 +1,12 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
 from .models import (
     ITComponent, Team, Position, Grade, EmployeeGrade, EmploymentType, 
     ForeignLanguage, ProgrammingLanguages, ProgrammingSkills, 
     Contact, User, Department, Resources
 )
+
+admin.site.register(Group)
 
 @admin.register(ITComponent)
 class ITComponentAdmin(admin.ModelAdmin):
