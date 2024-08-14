@@ -5,12 +5,6 @@ from core.users.models import (
     Contact, Resources
 )
 
-class UserContactLinksSerializer(serializers.Serializer):
-    links = serializers.ListField(child=serializers.URLField())
-    emails = serializers.ListField(child=serializers.EmailField())
-    phones = serializers.ListField(child=serializers.CharField())
-
-
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -146,8 +140,3 @@ class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
         fields = '__all__'
-
-class CombinedSerializer(serializers.Serializer):
-    components = ITComponentSerializer(many=True)
-    departments = DepartmentSerializer(many=True)
-    teams = TeamSerializer(many=True)

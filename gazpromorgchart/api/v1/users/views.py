@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from core.users.models import (
-    User, Department, Contact, ITComponent, Team, Position, Grade, 
+    User, Department, Resources, ITComponent, Team, Position, Grade, 
     EmployeeGrade, EmploymentType, ForeignLanguage, ProgrammingLanguages, 
     ProgrammingSkills
 )
@@ -12,7 +12,7 @@ from .serializers import (
     ITComponentSerializer, TeamSerializer, PositionSerializer, 
     GradeSerializer, EmployeeGradeSerializer, EmploymentTypeSerializer, 
     ForeignLanguageSerializer, ProgrammingLanguagesSerializer, 
-    ProgrammingSkillsSerializer, ContactSerializer, CombinedSerializer
+    ProgrammingSkillsSerializer, ContactSerializer, ResourcesSerializer
 )
 
 class UsersViewSet(viewsets.ReadOnlyModelViewSet):
@@ -97,3 +97,7 @@ class ProjectsView(APIView):
         }
 
         return Response(combined_data)
+
+class ResourcesViewSet(viewsets.ModelViewSet):
+    queryset = Resources.objects.all()
+    serializer_class = ResourcesSerializer
