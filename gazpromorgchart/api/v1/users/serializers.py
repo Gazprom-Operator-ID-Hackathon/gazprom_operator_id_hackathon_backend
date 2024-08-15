@@ -99,7 +99,7 @@ class ContactSerializer(serializers.ModelSerializer):
 class UserListSerializer(serializers.ModelSerializer):
     """Сериализатор для списка пользователей."""
     position = serializers.CharField(source='position.name', read_only=True)
-    level = serializers.CharField(source='grade.id', read_only=True)
+    grade = serializers.StringRelatedField()
     bossId = serializers.IntegerField(source='bossId.id', read_only=True)
     componentId = serializers.IntegerField(
         source='componentId.id', read_only=True
@@ -114,8 +114,8 @@ class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'first_name', 'last_name', 'photo', 'position', 'level',
-            'bossId', 'componentId', 'teamId', 'departmentId',
+            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 'grade',
+            'bossId', 'componentId', 'teamId', 'departmentId', 
             'employment_type', 'town', 'timezone', 'contacts'
         ]
 
