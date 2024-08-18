@@ -63,6 +63,7 @@ class ProgrammingLanguagesAdmin(admin.ModelAdmin):
     list_display = ('programminglanguages',)
     search_fields = ('programminglanguages',)
 
+
 @admin.register(ProgrammingSkills)
 class ProgrammingSkillsAdmin(admin.ModelAdmin):
     """Админка для модели ProgrammingSkills."""
@@ -75,6 +76,7 @@ class ContactAdmin(admin.ModelAdmin):
     """Админка для модели Contact."""
     list_display = ('user', 'emails')
     search_fields = ('user__first_name', 'user__last_name', 'emails')
+
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
@@ -101,6 +103,7 @@ class ResourcesAdmin(admin.ModelAdmin):
     """Админка для модели Resources."""
     list_display = ('teamId', 'cost', 'progress')
     search_fields = ('teamId__name',)
+
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):

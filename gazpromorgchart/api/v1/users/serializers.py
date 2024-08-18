@@ -115,8 +115,8 @@ class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 'grade',
-            'bossId', 'componentId', 'teamId', 'departmentId', 
+            'id', 'first_name', 'last_name', 'photo', 'position', 'level',
+            'grade', 'bossId', 'componentId', 'teamId', 'departmentId',
             'employment_type', 'town', 'timezone', 'contacts'
         ]
 
@@ -154,8 +154,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 'grade',
-            'bossId', 'componentId', 'teamId', 'departmentId', 
+            'id', 'first_name', 'last_name', 'photo', 'position', 'level',
+            'grade', 'bossId', 'componentId', 'teamId', 'departmentId',
             'employment_type', 'town', 'timezone', 'contacts',
             'foreign_languages', 'programs', 'skills'
         ]
