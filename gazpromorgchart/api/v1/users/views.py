@@ -21,6 +21,11 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserListSerializer
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
+
 
 class UserMeView(APIView):
     """Вьюсет для получения информации о текущем пользователе."""

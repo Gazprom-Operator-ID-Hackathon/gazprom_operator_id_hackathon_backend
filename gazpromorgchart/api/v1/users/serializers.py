@@ -110,6 +110,7 @@ class UserListSerializer(serializers.ModelSerializer):
     )
     employment_type = serializers.SerializerMethodField()
     contacts = serializers.SerializerMethodField()
+    photo = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -132,6 +133,12 @@ class UserListSerializer(serializers.ModelSerializer):
             links.extend(contact.links)
         return {'links': links}
 
+    def get_photo(self, obj):
+        request = self.context.get('request')
+        if obj.photo and request:
+            return request.build_absolute_uri(obj.photo.url)
+        return None
+
 
 class UserDetailSerializer(serializers.ModelSerializer):
     """Сериализатор для детальной информации о пользователе."""
@@ -142,14 +149,15 @@ class UserDetailSerializer(serializers.ModelSerializer):
     programs = serializers.StringRelatedField(many=True)
     skills = serializers.StringRelatedField(many=True)
     contacts = serializers.SerializerMethodField()
+    photo = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = [
-            'id', 'first_name', 'last_name', 'photo', 'position', 'level',
-            'grade', 'bossId', 'teamId', 'componentId', 'departmentId',
-            'employment_type', 'timezone', 'town', 'foreign_languages',
-            'programs', 'skills', 'contacts'
+            'id', 'first_name', 'last_name', 'photo', 'position', 'level', 'grade',
+            'bossId', 'componentId', 'teamId', 'departmentId', 
+            'employment_type', 'town', 'timezone', 'contacts',
+            'foreign_languages', 'programs', 'skills'
         ]
 
     def get_employment_type(self, obj):
@@ -161,13 +169,15 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     def get_contacts(self, obj):
         links = []
-        emails = []
-        phones = []
         for contact in obj.contacts.all():
             links.extend(contact.links)
-            emails.extend(contact.emails)
-            phones.extend(contact.phones)
-        return {'links': links, 'emails': emails, 'phones': phones}
+        return {'links': links}
+
+    def get_photo(self, obj):
+        request = self.context.get('request')
+        if obj.photo and request:
+            return request.build_absolute_uri(obj.photo.url)
+        return None
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
