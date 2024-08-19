@@ -23,10 +23,11 @@
 ## Запуск проекта
 
 0. При необходимости устанавливаем Docker: [Docker Desktop](https://www.docker.com/products/docker-desktop)
-1. Клонируем проект:
+1. Клонируем проект и переходим в дирректорию проекта:
 
     ```
     git clone git@github.com:Gazprom-Operator-ID-Hackathon/gazprom_operator_id_hackathon_backend.git
+    cd gazprom_operator_id_hackathon_backend/
     ```
 
 2. Создаем в корневой директории [`.env`] и копируем в него содержимое [`.env_example`].
