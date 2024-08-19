@@ -43,20 +43,20 @@
     password: admin
     ```
 
-API проекта будет доступен по адресу: [http://127.0.0.1:8000/api/v1/](http://127.0.0.1:8000/api/v1/) 
-Swagger проекта будет доступен по адресу: [http://127.0.0.1:8000/swagger](http://127.0.0.1:8000/swagger)
-Вход в административную панель: [http://127.0.0.1:8000/admin](http://127.0.0.1:8000/admin)
+- API проекта будет доступен по адресу: [http://127.0.0.1:8000/api/v1/](http://127.0.0.1:8000/api/v1/);
+- Swagger проекта будет доступен по адресу: [http://127.0.0.1:8000/swagger](http://127.0.0.1:8000/swagger)
+- Вход в административную панель: [http://127.0.0.1:8000/admin](http://127.0.0.1:8000/admin)
 
 ## Развертывание проекта
 
-Готовый проект доступен по адресу: [https://timurisrafilov.github.io/gaz-hack-front/#/company](https://timurisrafilov.github.io/gaz-hack-front/#/company)
-API доступен по адресу: [https://hackathonproject.sytes.net/api/v1/users/](https://hackathonproject.sytes.net/api/v1/users/)
+Готовый проект доступен по адресу: [https://timurisrafilov.github.io/gaz-hack-front/#/company](https://timurisrafilov.github.io/gaz-hack-front/#/company).
+API доступен по адресу: [https://hackathonproject.sytes.net/api/v1/users/](https://hackathonproject.sytes.net/api/v1/users/).
 Основные эндпоинты API:
-- получение списка пользователей с определенным набором полей: [https://hackathonproject.sytes.net/api/v1/users/](https://hackathonproject.sytes.net/api/v1/users/)
-- получение конкретного пользователя по id: [https://hackathonproject.sytes.net/api/v1/users/{id}](https://hackathonproject.sytes.net/api/v1/users/{id})
-- получение основной информации о проектах с определенным набором полей: [https://hackathonproject.sytes.net/api/v1/projects/](https://hackathonproject.sytes.net/api/v1/projects/)
-- получение списка IT-компонентов с определенной структурой полей: [https://hackathonproject.sytes.net/api/v1/itcomponents/](https://hackathonproject.sytes.net/api/v1/itcomponents/)
-- Swagger проекта: [https://hackathonproject.sytes.net/swagger](https://hackathonproject.sytes.net/swagger)
+- получение списка пользователей с определенным набором полей: [https://hackathonproject.sytes.net/api/v1/users/](https://hackathonproject.sytes.net/api/v1/users/);
+- получение конкретного пользователя по id: [https://hackathonproject.sytes.net/api/v1/users/{id}](https://hackathonproject.sytes.net/api/v1/users/{id});
+- получение основной информации о проектах с определенным набором полей: [https://hackathonproject.sytes.net/api/v1/projects/](https://hackathonproject.sytes.net/api/v1/projects/);
+- получение списка IT-компонентов с определенной структурой полей: [https://hackathonproject.sytes.net/api/v1/itcomponents/](https://hackathonproject.sytes.net/api/v1/itcomponents/);
+- Swagger проекта: [https://hackathonproject.sytes.net/swagger](https://hackathonproject.sytes.net/swagger).
 
 ## Основные реализованные бизнес-логики в проекте
 
